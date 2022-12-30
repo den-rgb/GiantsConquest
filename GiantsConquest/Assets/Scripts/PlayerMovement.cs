@@ -9,10 +9,10 @@ public class PlayerMovement : MonoBehaviour
 
 
     // variable to track if the character is on the ground
-    public bool isOnGround = false;
+    private bool isOnGround = false;
 
     // variable to track if the characters feet are on the ground
-    public bool pushOff = false;
+    private bool pushOff = false;
 
     // the left foot collider to check for ground contact
     public CapsuleCollider LfootColider;
@@ -25,6 +25,13 @@ public class PlayerMovement : MonoBehaviour
 
     // the speed at which the character rotates towards the movement direction
     public float rotationSpeed = 90.0f;
+
+    private Animator anim;
+
+    public void Start()
+    {
+        anim = GetComponent<Animator>();
+    }
 
     // Update is called once per frame
     void Update()
@@ -81,10 +88,61 @@ public class PlayerMovement : MonoBehaviour
         {
             movementDirection = -transform.right;
         }
-        else
+        else if (horizontalInput == 0 && verticalInput == 0)
         {
+            anim.SetBool("Attack", false);
+            anim.SetBool("Sprint", false);
+            anim.SetBool("Walk", false);
+            int randomNumber = Random.Range(1, 3);
+            if (randomNumber == 1)
+            {
+                anim.SetBool("Idle", true);
+            }
+            else
+            {
+                anim.SetBool("Idle_2", true);
+            }
             movementDirection = transform.forward;
         }
+
+        else
+        {
+            anim.SetBool("Idle", false);
+            anim.SetBool("Idle_2", false);
+            movementDirection = transform.forward;
+        }
+
+
+        if (Input.GetMouseButton(0) && isOnGround)
+        {
+            anim.SetBool("Idle", false);
+            anim.SetBool("Idle_2", false);
+            anim.SetBool("Sprint", false);
+            anim.SetBool("Walk", false);
+            // Mouse left button was clicked
+            anim.SetBool("Attack",true);
+        }
+
+
+
+
+        // Check if the space key is pressed
+        if (Input.GetKeyDown(KeyCode.Space) && isOnGround)
+        {
+            anim.SetBool("Attack", false);
+            anim.SetBool("Idle", false);
+            anim.SetBool("Idle_2", false);
+            anim.SetBool("Sprint", false);
+            anim.SetBool("Walk", false);
+            anim.SetBool("Jump",true);
+            // Apply an upward force to the player using the Rigidbody component
+            GetComponent<Rigidbody>().AddForce(Vector3.up * 100, ForceMode.Impulse);
+        }
+        else
+        {
+            anim.SetBool("Jump", false);
+        }
+        
 
 
         // Rotate the character's body towards the movement direction gradually
@@ -93,17 +151,46 @@ public class PlayerMovement : MonoBehaviour
         // Only move the character if it is on the ground and receiving input
         if (isOnGround && (horizontalInput != 0 || verticalInput != 0))
         {
-            if (pushOff)
+            // Check if the left shift key is pressed
+            if (Input.GetKey(KeyCode.LeftShift))
             {
-                speed = 15f;
+                anim.SetBool("Attack", false);
+                anim.SetBool("Idle", false);
+                anim.SetBool("Idle_2", false);
+                anim.SetBool("Sprint", true);
+                anim.SetBool("Walk", false);
+                if (pushOff)
+                {
+                    speed = 25f;
+                }
+                else
+                {
+                    // Increase the movement speed
+                    speed = 20f;
+                }
+
             }
             else
             {
-                speed = 10f;
+                anim.SetBool("Attack", false);
+                anim.SetBool("Idle", false);
+                anim.SetBool("Idle_2", false);
+                anim.SetBool("Sprint", false);
+                anim.SetBool("Walk",true);
+
+                if (pushOff)
+                {
+                    speed = 15f;
+                }
+                else
+                {
+                    speed = 10f;
+                }
             }
             // Move the character in the movement direction with the set speed
             transform.position += movementDirection * speed * Time.deltaTime;
         }
 
     }
+
 }
