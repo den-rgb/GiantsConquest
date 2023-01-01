@@ -144,13 +144,14 @@ public class PlayerMovement : MonoBehaviour
         }
         
 
-
-        // Rotate the character's body towards the movement direction gradually
-        transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(movementDirection), rotationSpeed * Time.deltaTime);
-
         // Only move the character if it is on the ground and receiving input
         if (isOnGround && (horizontalInput != 0 || verticalInput != 0))
         {
+            // Calculate the target rotation based on the movement direction
+            Quaternion targetRotation = Quaternion.LookRotation(movementDirection, Vector3.up);
+
+            // Rotate towards the target rotation
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
             // Check if the left shift key is pressed
             if (Input.GetKey(KeyCode.LeftShift))
             {
