@@ -102,7 +102,7 @@ public class PlayerMovement : MonoBehaviour
             {
                 anim.SetBool("Idle_2", true);
             }
-            movementDirection = transform.forward;
+            
         }
 
         else
