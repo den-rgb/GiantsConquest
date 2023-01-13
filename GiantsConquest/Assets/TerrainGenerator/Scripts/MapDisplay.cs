@@ -11,7 +11,7 @@ public class MapDisplay : MonoBehaviour
     
     private MeshFilter _meshFilter;
     private MeshRenderer _meshRenderer;
-    
+
     public Color[] GenerateColors(Mesh mesh, float[,] noiseMap)
     {
         if (_meshFilter == null)
@@ -23,7 +23,9 @@ public class MapDisplay : MonoBehaviour
         {
             _meshRenderer = GetComponent<MeshRenderer>();
         }
-        
+
+       
+
         List<Color> colorMap = new List<Color>();
         IEnumerator<Triangle> trisEnum = mesh.Triangles.GetEnumerator();
         

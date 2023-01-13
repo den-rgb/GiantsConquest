@@ -51,14 +51,16 @@ public class MapGenerator : MonoBehaviour
     private MapDisplay _mapDisplay;
     private MeshData _meshData;
     private Mesh _netMesh;
-
+    private MeshCollider meshCollider;
     public void GenerateMap() 
     {
         if (_mapDisplay == null)
         {
             _mapDisplay = GetComponent<MapDisplay>();
         }
-        
+
+        meshCollider = GetComponent<MeshCollider>();
+
         float[,] noiseMap = Noise.GenerateNoiseMap(mapSize, noiseData, island, islandSizeMultiplier);
     
         _netMesh = MeshGenerator.GenerateTriangulatedMesh(mapSize, distributionData);
@@ -73,6 +75,7 @@ public class MapGenerator : MonoBehaviour
         Color[] colors = _mapDisplay.GenerateColors(_netMesh, noiseMap);
         _meshData.AddColors(colors);
         UnityEngine.Mesh m = _meshData.CreateMesh();
+        meshCollider.sharedMesh = m;
         _mapDisplay.DisplayMesh(m);
 
         if (waterGenerator != null)
