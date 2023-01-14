@@ -3,7 +3,7 @@ using TriangleNet.Topology;
 using UnityEngine;
 using Mesh = TriangleNet.Mesh;
 
-[RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
+[RequireComponent(typeof(MeshRenderer))]
 public class MapDisplay : MonoBehaviour
 {
     public Material material;

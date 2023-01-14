@@ -39,7 +39,7 @@ public class WaterGenerator : MonoBehaviour
 
     public void Clear()
     {
-        _mapDisplay.ClearMesh();
+       // _mapDisplay.ClearMesh();
     }
 }
 

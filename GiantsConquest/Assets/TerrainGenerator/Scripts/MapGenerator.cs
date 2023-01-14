@@ -52,13 +52,21 @@ public class MapGenerator : MonoBehaviour
     private MeshData _meshData;
     private Mesh _netMesh;
     private MeshCollider meshCollider;
+    private MeshFilter meshFilter;
     public void GenerateMap() 
     {
         if (_mapDisplay == null)
         {
             _mapDisplay = GetComponent<MapDisplay>();
         }
-
+        if (meshFilter == null)
+        {
+            meshFilter = gameObject.AddComponent<MeshFilter>();
+        }
+        else
+        {
+            meshFilter = GetComponent<MeshFilter>();
+        }
         meshCollider = GetComponent<MeshCollider>();
 
         float[,] noiseMap = Noise.GenerateNoiseMap(mapSize, noiseData, island, islandSizeMultiplier);
@@ -74,9 +82,9 @@ public class MapGenerator : MonoBehaviour
         _meshData = MeshGenerator.GenerateMeshData(_netMesh,noiseData.meshHeightCurve, noiseMap, noiseData.meshHeightMultiplier);
         Color[] colors = _mapDisplay.GenerateColors(_netMesh, noiseMap);
         _meshData.AddColors(colors);
-        UnityEngine.Mesh m = _meshData.CreateMesh();
-        meshCollider.sharedMesh = m;
-        _mapDisplay.DisplayMesh(m);
+        meshFilter.sharedMesh = _meshData.CreateMesh();
+        meshCollider.sharedMesh = meshFilter.sharedMesh;
+        _mapDisplay.DisplayMesh(meshFilter.sharedMesh);
 
         if (waterGenerator != null)
         {
