@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 3788870646030904525}
   - component: {fileID: 3788870646030904527}
   - component: {fileID: 3788870646030904524}
-  m_Layer: 6
+  m_Layer: 3
   m_Name: SingleTerrain
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -103,8 +103,8 @@ MonoBehaviour:
     key5: {r: 0.6226415, g: 0.6226415, b: 0.6226415, a: 0}
     key6: {r: 0.8962264, g: 0.8962264, b: 0.8962264, a: 0}
     key7: {r: 0.37270564, g: 0.3063813, b: 0.4245283, a: 0}
-    ctime0: 7325
-    ctime1: 12336
+    ctime0: 5397
+    ctime1: 8481
     ctime2: 34888
     ctime3: 39514
     ctime4: 51272
@@ -328,6 +328,10 @@ PrefabInstance:
     - target: {fileID: 2503461861467151791, guid: 9cc88b2b3738b394491a37521588a74b, type: 3}
       propertyPath: m_Name
       value: Water
+      objectReference: {fileID: 0}
+    - target: {fileID: 2503461861467151791, guid: 9cc88b2b3738b394491a37521588a74b, type: 3}
+      propertyPath: m_Layer
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 2503461861467151824, guid: 9cc88b2b3738b394491a37521588a74b, type: 3}
       propertyPath: m_RootOrder
