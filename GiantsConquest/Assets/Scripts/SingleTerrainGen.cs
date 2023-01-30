@@ -1,4 +1,3 @@
-
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,6 +6,7 @@ using UnityEngine;
 public class SingleTerrainGen : MonoBehaviour
 {   
     public GameObject terrainToSpawn;
+    public GameObject well;
     public GameObject  villageHouse;
     private MeshCollider terrainCollider;
     public float maxHeight;
@@ -71,9 +71,11 @@ public class SingleTerrainGen : MonoBehaviour
                     euler.z = (euler.z > 180) ? euler.z - 360 : euler.z;
                     if(euler.x > minSlope && euler.x < maxSlope && euler.z > minSlope && euler.z < maxSlope){
                         // Spawn the object at the hit point
-                        GameObject villageCenter = Instantiate(villageHouse, new Vector3(position.x,position.y - 1.5f,position.z), rotation);
+                        GameObject villageCenter = Instantiate(well, new Vector3(position.x,position.y - 1.5f,position.z), rotation);
+                        villageCenter.name = "Well" + scList.Count.ToString();
                         SphereCollider villageCenterCollider = villageCenter.AddComponent<SphereCollider>();
-                        villageCenterCollider.radius = 150f;
+                        villageCenterCollider.radius = 200f;
+                        villageCenterCollider.isTrigger = true;
                         scList.Add(villageCenterCollider);
                     }else{
                         numberOfObjects++;
@@ -87,37 +89,43 @@ public class SingleTerrainGen : MonoBehaviour
         // // surrounding object spawn
         // /////////////////////////////////////////////////////////////////////////////////////////
         int surroundingBuildings = 5;
-            for(int j = 0; j<scList.Count;j++){
-                int spawnedBuildings = 0;
-                while (spawnedBuildings < surroundingBuildings) {
-                    print(spawnedBuildings+" sb");
-                    Vector3 randomPos = scList[j].bounds.center + new Vector3(Random.Range(-scList[j].bounds.extents.x, scList[j].bounds.extents.x), 
-                                                                1000, Random.Range(-scList[j].bounds.extents.z, scList[j].bounds.extents.z));
-                    if (Physics.Raycast(randomPos, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground")) && (hit.point.y < maxHeight && hit.point.y > minHeight)){
-                        randomPos.y = hit.point.y;
-                        Vector3 center = scList[j].bounds.center;
-                        Vector3 newCenter = new Vector3(center.x,randomPos.y,center.z);
-                        Vector3 direction = newCenter - randomPos;
-                        Quaternion rotationCenter = Quaternion.LookRotation(direction, Vector3.up);
-                        Quaternion rotationNormal = Quaternion.FromToRotation(Vector3.up, hit.normal);
-                        Quaternion finalRotation = rotationNormal * rotationCenter;
-                        Vector3 euler = finalRotation.eulerAngles;
-                        //converting euler angles to degrees
-                        euler.x = (euler.x > 180) ? euler.x - 360 : euler.x;
-                        euler.z = (euler.z > 180) ? euler.z - 360 : euler.z;
-                        // finalRotation = Quaternion.Euler(0, euler.y, 0);
-                        //print( "Final Rotation: " + finalRotation.x + " " + finalRotation.y + " " + finalRotation.z);
-                        if(euler.x > minSlope && euler.x < maxSlope && euler.z > minSlope && euler.z < maxSlope){
-                            randomPos = new Vector3(randomPos.x,randomPos.y - 1.5f,randomPos.z);
-                            //Check radius of 10 from randomPos for objects with layer "House"
-                            Collider[] surroundingColliders = Physics.OverlapSphere(randomPos, 20f, LayerMask.GetMask("House"));
-                            if(surroundingColliders.Length == 0){
-                                Instantiate(villageHouse, randomPos, finalRotation);
-                                spawnedBuildings++;
-                            }
+        for(int j = 0; j < scList.Count; j++) {
+            int spawnedBuildings = 0;
+            int iterations = 0;
+            while (spawnedBuildings < surroundingBuildings && iterations < 1000) {
+                // Vector3 randomPos = scList[j].bounds.center + new Vector3(Random.Range(-scList[j].bounds.extents.x, scList[j].bounds.extents.x),
+                //                     1000, Random.Range(-scList[j].bounds.extents.z, scList[j].bounds.extents.z));
+                Vector3 randomPos = scList[j].bounds.center + Random.insideUnitSphere * scList[j].radius;
+                randomPos.y = 1000f;
+                if (Physics.Raycast(randomPos, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground")) && (hit.point.y < maxHeight && hit.point.y > minHeight)){
+                    randomPos.y = hit.point.y;
+                    Vector3 center = scList[j].bounds.center;
+                    Vector3 newCenter = new Vector3(center.x,randomPos.y,center.z);
+                    Vector3 direction = newCenter - randomPos;
+                    direction = -direction;
+                    Quaternion rotationCenter = Quaternion.LookRotation(direction, Vector3.up);
+                    Quaternion rotationNormal = Quaternion.FromToRotation(Vector3.up, hit.normal);
+                    Quaternion finalRotation = rotationNormal * rotationCenter;
+                    Vector3 euler = finalRotation.eulerAngles;
+                    euler.x = (euler.x > 180) ? euler.x - 360 : euler.x;
+                    euler.z = (euler.z > 180) ? euler.z - 360 : euler.z;
+                    if(euler.x > minSlope && euler.x < maxSlope && euler.z > minSlope && euler.z < maxSlope){
+                        randomPos = new Vector3(randomPos.x,randomPos.y - 1.5f,randomPos.z);
+                        Collider[] surroundingColliders = Physics.OverlapSphere(randomPos, 50f, LayerMask.GetMask("House"));
+                        //print(scList[j]+" "+surroundingColliders.Length + surroundingColliders[0].name);
+                        if(surroundingColliders.Length == 0){
+                            GameObject house = Instantiate(villageHouse, randomPos, finalRotation);
+                            house.name = "House " + j.ToString() + spawnedBuildings.ToString();
+                            house.AddComponent<SphereCollider>();
+                            house.GetComponent<SphereCollider>().radius = 50f;
+                            house.GetComponent<SphereCollider>().isTrigger = true;
+                            spawnedBuildings++;
                         }
                     }
+                    
                 }
+                iterations++;
             }
+        }
     }
 }

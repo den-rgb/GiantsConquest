@@ -440,6 +440,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   terrainToSpawn: {fileID: 3788870646030904533, guid: 6e45b85a50df63146ab868553b389cea, type: 3}
+  well: {fileID: 4064278503882868385, guid: 0c5be5182d74b89d8ac5408405522afb, type: 3}
   villageHouse: {fileID: 5384943003590344120, guid: f30a30a1e123b1d45a3aeca41be2bc1b, type: 3}
   maxHeight: 600
   minHeight: 200
