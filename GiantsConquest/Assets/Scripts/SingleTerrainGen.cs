@@ -15,6 +15,8 @@ public class SingleTerrainGen : MonoBehaviour
     public float minSlope;
     private RaycastHit hit;
     private List<SphereCollider> scList = new List<SphereCollider>();
+    private List<Vector3> pathList = new List<Vector3>();
+    public GameObject line;
 
 
     public void Start()
@@ -47,7 +49,7 @@ public class SingleTerrainGen : MonoBehaviour
         water.transform.position = new Vector3(0, -150, 0);
         
         /// /////////////////////////////////////////////////////////////////////////////////////////
-        /// object spawn 
+        /// center spawn 
         ///////////////////////////////////////////////////////////////////////////////////////////// 
         
         terrainCollider = spawned.GetComponent<MeshCollider>();
@@ -86,7 +88,7 @@ public class SingleTerrainGen : MonoBehaviour
         }
 
         // /////////////////////////////////////////////////////////////////////////////////////////
-        // // surrounding object spawn
+        // // surrounding houses spawn
         // /////////////////////////////////////////////////////////////////////////////////////////
         int surroundingBuildings = 5;
         for(int j = 0; j < scList.Count; j++) {
@@ -114,18 +116,53 @@ public class SingleTerrainGen : MonoBehaviour
                         Collider[] surroundingColliders = Physics.OverlapSphere(randomPos, 50f, LayerMask.GetMask("House"));
                         //print(scList[j]+" "+surroundingColliders.Length + surroundingColliders[0].name);
                         if(surroundingColliders.Length == 0){
-                            GameObject house = Instantiate(villageHouse, randomPos, finalRotation);
-                            house.name = "House " + j.ToString() + spawnedBuildings.ToString();
-                            house.AddComponent<SphereCollider>();
-                            house.GetComponent<SphereCollider>().radius = 50f;
-                            house.GetComponent<SphereCollider>().isTrigger = true;
-                            spawnedBuildings++;
+                            float distance = Vector3.Distance(randomPos, scList[j].bounds.center);
+                            if (distance >= 30f) {
+                                GameObject house = Instantiate(villageHouse, randomPos, finalRotation);
+                                house.name = "House " + j.ToString() + spawnedBuildings.ToString();
+                                house.AddComponent<SphereCollider>();
+                                house.GetComponent<SphereCollider>().radius = 50f;
+                                house.GetComponent<SphereCollider>().isTrigger = true;
+                                if(pathList.Count < 5){
+                                    Vector3 pathPos = new Vector3(randomPos.x,randomPos.y + 20.5f,randomPos.z);
+                                    pathList.Add(randomPos);
+                                }
+                                spawnedBuildings++;
+                            }
                         }
                     }
                     
                 }
                 iterations++;
             }
+        }
+
+        // /////////////////////////////////////////////////////////////////////////////////////////
+        // // Generate path
+        // /////////////////////////////////////////////////////////////////////////////////////////
+
+        
+        // int layerMask = 1 << LayerMask.NameToLayer("LayerToIgnore");
+        // layerMask = ~layerMask;
+
+        // lineRenderer = GetComponent<LineRenderer>();
+        // lineRenderer.positionCount = pathList.Count + 1;
+        Vector3 pos = new Vector3(scList[0].bounds.center.x, scList[0].bounds.center.y + 20.5f, scList[0].bounds.center.z);
+        // lineRenderer.SetPosition(0, pos);
+        
+        for (int i = 0; i < pathList.Count; i++)
+        {
+            GameObject path = Instantiate(line,pos,Quaternion.identity);
+            Vector3 endPos = pathList[i];
+            Vector3 startPos = pos;
+            path.GetComponent<LineRenderer>().SetPosition(0, startPos);
+            path.GetComponent<LineRenderer>().SetPosition(1, endPos);
+            // RaycastHit hit;
+            // if (Physics.Linecast(startPos, endPos, out hit, layerMask))
+            // {
+            //     endPos = hit.point;
+            // }
+            // lineRenderer.SetPosition(i + 1, endPos);
         }
     }
 }

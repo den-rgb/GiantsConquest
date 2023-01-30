@@ -446,6 +446,7 @@ MonoBehaviour:
   minHeight: 200
   maxSlope: 20
   minSlope: -20
+  line: {fileID: 3359729803057900658, guid: 7bb9d39b325119ff09d26392e2100ffd, type: 3}
 --- !u!1 &1068790911 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8844215987645049252, guid: 1d338535251529b4bbd2cc905abe6622, type: 3}
