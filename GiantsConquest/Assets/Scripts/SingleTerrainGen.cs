@@ -73,7 +73,7 @@ public class SingleTerrainGen : MonoBehaviour
                     euler.z = (euler.z > 180) ? euler.z - 360 : euler.z;
                     if(euler.x > minSlope && euler.x < maxSlope && euler.z > minSlope && euler.z < maxSlope){
                         // Spawn the object at the hit point
-                        GameObject villageCenter = Instantiate(well, new Vector3(position.x,position.y - 1.5f,position.z), rotation);
+                        GameObject villageCenter = Instantiate(well, position, rotation);
                         villageCenter.name = "Well" + scList.Count.ToString();
                         SphereCollider villageCenterCollider = villageCenter.AddComponent<SphereCollider>();
                         villageCenterCollider.radius = 200f;
@@ -163,6 +163,9 @@ public class SingleTerrainGen : MonoBehaviour
             //     endPos = hit.point;
             // }
             // lineRenderer.SetPosition(i + 1, endPos);
+
+
+            //Todo: segment line renderer and drop rocks on mesh
         }
     }
 }
