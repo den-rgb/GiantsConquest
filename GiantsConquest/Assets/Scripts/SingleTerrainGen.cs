@@ -16,7 +16,7 @@ public class SingleTerrainGen : MonoBehaviour
     private RaycastHit hit;
     private List<SphereCollider> scList = new List<SphereCollider>();
     private List<Vector3> pathList = new List<Vector3>();
-    public GameObject line;
+    public GameObject[] path;
 
 
     public void Start()
@@ -90,52 +90,8 @@ public class SingleTerrainGen : MonoBehaviour
         // /////////////////////////////////////////////////////////////////////////////////////////
         // // surrounding houses spawn
         // /////////////////////////////////////////////////////////////////////////////////////////
-        int surroundingBuildings = 5;
-        for(int j = 0; j < scList.Count; j++) {
-            int spawnedBuildings = 0;
-            int iterations = 0;
-            while (spawnedBuildings < surroundingBuildings && iterations < 1000) {
-                // Vector3 randomPos = scList[j].bounds.center + new Vector3(Random.Range(-scList[j].bounds.extents.x, scList[j].bounds.extents.x),
-                //                     1000, Random.Range(-scList[j].bounds.extents.z, scList[j].bounds.extents.z));
-                Vector3 randomPos = scList[j].bounds.center + Random.insideUnitSphere * scList[j].radius;
-                randomPos.y = 1000f;
-                if (Physics.Raycast(randomPos, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground")) && (hit.point.y < maxHeight && hit.point.y > minHeight)){
-                    randomPos.y = hit.point.y;
-                    Vector3 center = scList[j].bounds.center;
-                    Vector3 newCenter = new Vector3(center.x,randomPos.y,center.z);
-                    Vector3 direction = newCenter - randomPos;
-                    direction = -direction;
-                    Quaternion rotationCenter = Quaternion.LookRotation(direction, Vector3.up);
-                    Quaternion rotationNormal = Quaternion.FromToRotation(Vector3.up, hit.normal);
-                    Quaternion finalRotation = rotationNormal * rotationCenter;
-                    Vector3 euler = finalRotation.eulerAngles;
-                    euler.x = (euler.x > 180) ? euler.x - 360 : euler.x;
-                    euler.z = (euler.z > 180) ? euler.z - 360 : euler.z;
-                    if(euler.x > minSlope && euler.x < maxSlope && euler.z > minSlope && euler.z < maxSlope){
-                        randomPos = new Vector3(randomPos.x,randomPos.y - 1.5f,randomPos.z);
-                        Collider[] surroundingColliders = Physics.OverlapSphere(randomPos, 50f, LayerMask.GetMask("House"));
-                        //print(scList[j]+" "+surroundingColliders.Length + surroundingColliders[0].name);
-                        if(surroundingColliders.Length == 0){
-                            float distance = Vector3.Distance(randomPos, scList[j].bounds.center);
-                            if (distance >= 30f) {
-                                GameObject house = Instantiate(villageHouse, randomPos, finalRotation);
-                                house.name = "House " + j.ToString() + spawnedBuildings.ToString();
-                                house.AddComponent<SphereCollider>();
-                                house.GetComponent<SphereCollider>().radius = 50f;
-                                house.GetComponent<SphereCollider>().isTrigger = true;
-                                if(pathList.Count < 5){
-                                    Vector3 pathPos = new Vector3(randomPos.x,randomPos.y + 20.5f,randomPos.z);
-                                    pathList.Add(randomPos);
-                                }
-                                spawnedBuildings++;
-                            }
-                        }
-                    }
-                    
-                }
-                iterations++;
-            }
-        }
+        spawnSurroundingObjects(5, 50, 1, villageHouse);
+        
 
         // /////////////////////////////////////////////////////////////////////////////////////////
         // // Generate path
@@ -147,25 +103,88 @@ public class SingleTerrainGen : MonoBehaviour
 
         // lineRenderer = GetComponent<LineRenderer>();
         // lineRenderer.positionCount = pathList.Count + 1;
-        Vector3 pos = new Vector3(scList[0].bounds.center.x, scList[0].bounds.center.y + 20.5f, scList[0].bounds.center.z);
-        // lineRenderer.SetPosition(0, pos);
+        // Vector3 startPos = new Vector3(scList[0].bounds.center.x, scList[0].bounds.center.y+100, scList[0].bounds.center.z);
+        // if (Physics.Raycast(startPos, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground"))){
+        //     startPos.y = hit.point.y;
         
-        for (int i = 0; i < pathList.Count; i++)
-        {
-            GameObject path = Instantiate(line,pos,Quaternion.identity);
-            Vector3 endPos = pathList[i];
-            Vector3 startPos = pos;
-            path.GetComponent<LineRenderer>().SetPosition(0, startPos);
-            path.GetComponent<LineRenderer>().SetPosition(1, endPos);
-            // RaycastHit hit;
-            // if (Physics.Linecast(startPos, endPos, out hit, layerMask))
-            // {
-            //     endPos = hit.point;
-            // }
-            // lineRenderer.SetPosition(i + 1, endPos);
+        //     for (int i = 0; i < pathList.Count; i++)
+        //     {
+        //         Vector3 endPos = pathList[i];
+        //         float distance = Vector3.Distance(startPos, endPos);
+        //         float sectionLength = distance / 10f;
+        //         Vector3 difference = endPos - startPos;
+        //         Vector3 direction = difference.normalized;
 
-
-            //Todo: segment line renderer and drop rocks on mesh
-        }
+        //         // Calculate the position of each of the five sections
+        //         for (int j = 1; j <= 9; j++)
+        //         {
+        //             Vector3 sectionPoint = startPos + direction * sectionLength * j;
+        //             Vector3 sectionPointUp = sectionPoint + new Vector3(0, 50, 0);
+        //             if (Physics.Raycast(sectionPointUp, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground"))){
+        //                 sectionPoint.y = hit.point.y;
+        //                 Quaternion rotationCenter = Quaternion.LookRotation(direction, Vector3.up);
+        //                 Quaternion rotationNormal = Quaternion.FromToRotation(Vector3.up, hit.normal);
+        //                 Quaternion finalRotation = rotationNormal * rotationCenter;
+        //                 GameObject chosenRock = path[Random.Range(0, path.Length)];
+        //                 Instantiate(chosenRock, new Vector3(sectionPoint.x, sectionPoint.y, sectionPoint.z), finalRotation);
+        //             }
+                    
+                    
+                    
+        //         }
+        //     }
+        // }
     }
+
+
+    public void spawnSurroundingObjects(int count, float minDistance, float radiusChange, GameObject prefab){
+            for(int j = 0; j < scList.Count; j++) {
+                int spawned = 0;
+                int iterations = 0;
+                while (spawned < count && iterations < 1000) {
+                    // Vector3 randomPos = scList[j].bounds.center + new Vector3(Random.Range(-scList[j].bounds.extents.x, scList[j].bounds.extents.x),
+                    //                     1000, Random.Range(-scList[j].bounds.extents.z, scList[j].bounds.extents.z));
+                    Vector3 randomPos = scList[j].bounds.center + Random.insideUnitSphere * (scList[j].radius/radiusChange);
+                    randomPos.y = 1000f;
+                    if (Physics.Raycast(randomPos, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground")) && (hit.point.y < maxHeight && hit.point.y > minHeight)){
+                        randomPos.y = hit.point.y;
+                        Vector3 center = scList[j].bounds.center;
+                        Vector3 newCenter = new Vector3(center.x,randomPos.y,center.z);
+                        Vector3 direction = newCenter - randomPos;
+                        direction = -direction;
+                        Quaternion rotationCenter = Quaternion.LookRotation(direction, Vector3.up);
+                        Quaternion rotationNormal = Quaternion.FromToRotation(Vector3.up, hit.normal);
+                        Quaternion finalRotation = rotationNormal * rotationCenter;
+                        Vector3 euler = finalRotation.eulerAngles;
+                        euler.x = (euler.x > 180) ? euler.x - 360 : euler.x;
+                        euler.z = (euler.z > 180) ? euler.z - 360 : euler.z;
+                        if(euler.x > minSlope && euler.x < maxSlope && euler.z > minSlope && euler.z < maxSlope){
+                            randomPos = new Vector3(randomPos.x,randomPos.y - 1.5f,randomPos.z);
+                            Collider[] surroundingColliders = Physics.OverlapSphere(randomPos, 50f, LayerMask.GetMask("House"));
+                            //print(scList[j]+" "+surroundingColliders.Length + surroundingColliders[0].name);
+                            if(surroundingColliders.Length == 0){
+                                float distance = Vector3.Distance(randomPos, scList[j].bounds.center);
+                                if(distance >= minDistance) {
+                                    
+                                    GameObject spawnedObj = Instantiate(prefab, randomPos, finalRotation);
+                                    spawnedObj.name = "House " + j.ToString() + spawned.ToString();
+                                    spawnedObj.AddComponent<SphereCollider>();
+                                    spawnedObj.GetComponent<SphereCollider>().radius = 50f;
+                                    spawnedObj.GetComponent<SphereCollider>().isTrigger = true;
+                                    if(pathList.Count < 5){
+                                        Vector3 pathPos = new Vector3(randomPos.x,randomPos.y,randomPos.z);
+                                        pathList.Add(randomPos);
+                                    }
+                                    
+                                    spawned++;
+                                    // surroundingItems++;
+                                }
+                            }
+                        }
+                        
+                    }
+                    iterations++;
+                }
+            }
+        }
 }

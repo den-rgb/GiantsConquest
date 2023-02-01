@@ -3353,6 +3353,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8882417175990516258}
   - component: {fileID: 2415046398888762199}
+  - component: {fileID: 6427029268476819866}
   m_Layer: 0
   m_Name: well
   m_TagString: Untagged
@@ -3478,6 +3479,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7fd527023c93e434cae1c6904065f67e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!65 &6427029268476819866
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2555086870682914186}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 20.700428, y: 20.34175, z: 27.10185}
+  m_Center: {x: 0.25959083, y: 10.401688, z: -0.29617855}
 --- !u!1 &2577116313022010578
 GameObject:
   m_ObjectHideFlags: 0
@@ -6264,6 +6278,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5487239341873807988}
   - component: {fileID: 7728889335523572274}
+  - component: {fileID: 9046404834823579969}
   m_Layer: 0
   m_Name: rafter
   m_TagString: Untagged
@@ -6304,6 +6319,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7fd527023c93e434cae1c6904065f67e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!65 &9046404834823579969
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4325774421076513002}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1.0100399, y: 13.356535, z: 15.617962}
+  m_Center: {x: 2.5585, y: -4.4164023, z: -0.5203305}
 --- !u!1 &4336569373302142689
 GameObject:
   m_ObjectHideFlags: 0
@@ -9700,6 +9728,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4968314865356634369}
   - component: {fileID: 5286184207413369630}
+  - component: {fileID: 4842094042498165194}
   m_Layer: 0
   m_Name: rafter_1
   m_TagString: Untagged
@@ -9740,6 +9769,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7fd527023c93e434cae1c6904065f67e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!65 &4842094042498165194
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6905026868149389884}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.55229837, y: 13.463958, z: 14.988501}
+  m_Center: {x: 2.2013078, y: -4.226832, z: -0.29462066}
 --- !u!1 &7053691436188448611
 GameObject:
   m_ObjectHideFlags: 0
