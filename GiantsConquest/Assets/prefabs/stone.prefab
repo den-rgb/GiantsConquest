@@ -95,7 +95,7 @@ GameObject:
   - component: {fileID: 985093770750716053}
   m_Layer: 0
   m_Name: stone
-  m_TagString: Untagged
+  m_TagString: path
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -108,8 +108,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2375312654567762737}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 20503, y: 271.92, z: 15302}
-  m_LocalScale: {x: 0.21211584, y: 0.11419714, z: 0.1689538}
+  m_LocalPosition: {x: 20503, y: 271.87, z: 15302}
+  m_LocalScale: {x: 0.620672, y: 0.2429654, z: 0.49437556}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4016820889417874579}

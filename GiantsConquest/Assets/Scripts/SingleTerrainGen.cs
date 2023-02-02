@@ -1,3 +1,4 @@
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -97,44 +98,41 @@ public class SingleTerrainGen : MonoBehaviour
         // // Generate path
         // /////////////////////////////////////////////////////////////////////////////////////////
 
+        Vector3 startPos = new Vector3(scList[0].bounds.center.x, scList[0].bounds.center.y+100, scList[0].bounds.center.z);
+        if (Physics.Raycast(startPos, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground"))){
+            startPos.y = hit.point.y;
         
-        // int layerMask = 1 << LayerMask.NameToLayer("LayerToIgnore");
-        // layerMask = ~layerMask;
+            float segmentLength = 7f; // the desired length of each segment
+            Vector3 offset;
+            for (int i = 0; i < pathList.Count; i++)
+            {
+                Vector3 endPos = pathList[i];
+                float distance = Vector3.Distance(startPos, endPos);
+                int numSegments = Mathf.FloorToInt(distance / segmentLength);
+                float sectionLength = distance / numSegments;
+                Vector3 difference = endPos - startPos;
+                Vector3 direction = difference.normalized;
 
-        // lineRenderer = GetComponent<LineRenderer>();
-        // lineRenderer.positionCount = pathList.Count + 1;
-        // Vector3 startPos = new Vector3(scList[0].bounds.center.x, scList[0].bounds.center.y+100, scList[0].bounds.center.z);
-        // if (Physics.Raycast(startPos, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground"))){
-        //     startPos.y = hit.point.y;
-        
-        //     for (int i = 0; i < pathList.Count; i++)
-        //     {
-        //         Vector3 endPos = pathList[i];
-        //         float distance = Vector3.Distance(startPos, endPos);
-        //         float sectionLength = distance / 10f;
-        //         Vector3 difference = endPos - startPos;
-        //         Vector3 direction = difference.normalized;
-
-        //         // Calculate the position of each of the five sections
-        //         for (int j = 1; j <= 9; j++)
-        //         {
-        //             Vector3 sectionPoint = startPos + direction * sectionLength * j;
-        //             Vector3 sectionPointUp = sectionPoint + new Vector3(0, 50, 0);
-        //             if (Physics.Raycast(sectionPointUp, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground"))){
-        //                 sectionPoint.y = hit.point.y;
-        //                 Quaternion rotationCenter = Quaternion.LookRotation(direction, Vector3.up);
-        //                 Quaternion rotationNormal = Quaternion.FromToRotation(Vector3.up, hit.normal);
-        //                 Quaternion finalRotation = rotationNormal * rotationCenter;
-        //                 GameObject chosenRock = path[Random.Range(0, path.Length)];
-        //                 Instantiate(chosenRock, new Vector3(sectionPoint.x, sectionPoint.y, sectionPoint.z), finalRotation);
-        //             }
-                    
-                    
-                    
-        //         }
-        //     }
-        // }
-    }
+                for (int j = 0; j < numSegments-2; j++)
+                {
+                    Vector3 sectionPoint = startPos + direction * sectionLength * j;
+                    if(distance < 100f) offset = Random.onUnitSphere * 2;
+                    else offset = Random.onUnitSphere * 3;
+                    sectionPoint += offset;
+                    Vector3 sectionPointUp = sectionPoint + new Vector3(0, 50, 0);
+                    if (Physics.Raycast(sectionPointUp, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground"))){
+                        sectionPoint.y = hit.point.y;
+                        Quaternion rotationCenter = Quaternion.LookRotation(direction, Vector3.up);
+                        Quaternion rotationNormal = Quaternion.FromToRotation(Vector3.up, hit.normal);
+                        Quaternion finalRotation = rotationNormal * rotationCenter;
+                        GameObject chosenRock = path[Random.Range(0, path.Length)];
+                        Instantiate(chosenRock, new Vector3(sectionPoint.x, sectionPoint.y, sectionPoint.z), finalRotation);
+                    }
+                }
+            }
+        }
+    } // make sure stones arent touching (they have tag) + rotate rocks randomly + add more different rocks
+    
 
 
     public void spawnSurroundingObjects(int count, float minDistance, float radiusChange, GameObject prefab){
