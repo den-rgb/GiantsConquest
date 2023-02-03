@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8301428327364893643}
   - component: {fileID: 8867812143941864824}
   - component: {fileID: 2960507051853169337}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: EM_Stone8_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -93,7 +93,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2377881703164438405}
   - component: {fileID: 985093770750716053}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: stone
   m_TagString: path
   m_Icon: {fileID: 0}
@@ -108,7 +108,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2375312654567762737}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 20503, y: 271.87, z: 15302}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.620672, y: 0.2429654, z: 0.49437556}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -156,7 +156,7 @@ GameObject:
   - component: {fileID: 4005798626995368330}
   - component: {fileID: 7255023855456246327}
   - component: {fileID: 4095519062663752346}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: EM_Stone8_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -240,7 +240,7 @@ GameObject:
   - component: {fileID: 2191589750916343505}
   - component: {fileID: 7903784973907268259}
   - component: {fileID: 2902481105736756499}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: EM_Stone8_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}

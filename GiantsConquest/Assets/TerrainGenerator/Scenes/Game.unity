@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.18028416, g: 0.22571437, b: 0.3069228, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028435, g: 0.2257147, b: 0.30692327, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -444,8 +444,8 @@ MonoBehaviour:
   villageHouse: {fileID: 5384943003590344120, guid: f30a30a1e123b1d45a3aeca41be2bc1b, type: 3}
   maxHeight: 600
   minHeight: 200
-  maxSlope: 20
-  minSlope: -20
+  maxSlope: 15
+  minSlope: -15
   path:
   - {fileID: 2375312654567762737, guid: b9f8cd9022535c7f9b9a6036adbdac98, type: 3}
 --- !u!1 &1068790911 stripped
