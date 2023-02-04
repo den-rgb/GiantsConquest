@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 
 public class SingleTerrainGen : MonoBehaviour
@@ -19,10 +20,13 @@ public class SingleTerrainGen : MonoBehaviour
     private List<List<Vector3>> pathList = new List<List<Vector3>>();
     private List<Vector3> pathIteration;
     public GameObject[] path;
+    private NavMeshAgent navMeshAgent;
+    
 
 
     public void Start()
     {
+        
         GameObject spawned = Instantiate(terrainToSpawn, new Vector3(0, 0, 0), Quaternion.identity);
         MapGenerator script = spawned.GetComponent<MapGenerator>();
         float height = Random.Range(150, 300);
