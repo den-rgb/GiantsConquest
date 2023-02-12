@@ -20758,6 +20758,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5384943003590344121}
+  - component: {fileID: 6053006388392486046}
   m_Layer: 0
   m_Name: Village_House
   m_TagString: Untagged
@@ -20805,6 +20806,22 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!208 &6053006388392486046
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5384943003590344120}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 6, y: 5, z: 8.5}
+  m_MoveThreshold: 0
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: -3.5, y: 7, z: -6.5}
+  m_TimeToStationary: 0
 --- !u!1 &5384943003606499886
 GameObject:
   m_ObjectHideFlags: 0

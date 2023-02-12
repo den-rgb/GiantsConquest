@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.AI;
 
 
+
 public class SingleTerrainGen : MonoBehaviour
 {   
     public GameObject terrainToSpawn;
@@ -18,11 +19,14 @@ public class SingleTerrainGen : MonoBehaviour
     private RaycastHit hit;
     private List<SphereCollider> scList = new List<SphereCollider>();
     private List<List<Vector3>> pathList = new List<List<Vector3>>();
+    private List<NavMeshAgent> agentList = new List<NavMeshAgent>();
     private List<Vector3> pathIteration;
     public GameObject[] path;
-    private NavMeshAgent navMeshAgent;
-    
-
+    private NavMeshSurface navMeshSurface;
+    private NavMeshAgent pathAgent;
+    private NavMeshPath calcPath;
+    public GameObject cube;
+    public GameObject agentPos;
 
     public void Start()
     {
@@ -54,6 +58,9 @@ public class SingleTerrainGen : MonoBehaviour
         GameObject water = waterScript.gameObject;
         water.transform.position = new Vector3(0, -150, 0);
 
+        
+        
+
         /// /////////////////////////////////////////////////////////////////////////////////////////
         /// center spawn 
         ///////////////////////////////////////////////////////////////////////////////////////////// 
@@ -61,13 +68,23 @@ public class SingleTerrainGen : MonoBehaviour
         terrainCollider = spawned.GetComponent<MeshCollider>();
         int numberOfObjects = 3;
         Vector3 terrainSize = spawned.GetComponentInChildren<MeshRenderer>().bounds.size;
-        Vector3 position;
+
+
+        navMeshSurface = spawned.AddComponent<NavMeshSurface>();
+        navMeshSurface.overrideVoxelSize = true;
+        navMeshSurface.voxelSize = 1;
+        NavMeshBuildSettings buildSettings = navMeshSurface.GetBuildSettings();
+        buildSettings.agentSlope = 25;
+
+        navMeshSurface.BuildNavMesh();
+
+
 
 
         for (int i = 0; i < numberOfObjects; i++)
         {
             // Generate a random position within the terrain's bounds
-            position = new Vector3(Random.Range(0, terrainSize.x), 1000, Random.Range(0, terrainSize.z));
+            Vector3 position = new Vector3(Random.Range(0, terrainSize.x), 1000, Random.Range(0, terrainSize.z));
             if (Physics.Raycast(position, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground")) && (hit.point.y < maxHeight && hit.point.y > minHeight))
             {
                 position.y = hit.point.y;
@@ -80,11 +97,15 @@ public class SingleTerrainGen : MonoBehaviour
                 {
                     // Spawn the object at the hit point
                     GameObject villageCenter = Instantiate(well, position, rotation);
+                    GameObject agent = Instantiate(agentPos, position, rotation);
                     villageCenter.name = "Well" + scList.Count.ToString();
                     SphereCollider villageCenterCollider = villageCenter.AddComponent<SphereCollider>();
                     villageCenterCollider.radius = 200f;
                     villageCenterCollider.isTrigger = true;
                     scList.Add(villageCenterCollider);
+
+                    pathAgent = agent.AddComponent<NavMeshAgent>();
+                    agentList.Add(pathAgent);
                 }
                 else
                 {
@@ -95,6 +116,30 @@ public class SingleTerrainGen : MonoBehaviour
             {
                 numberOfObjects++;
             }
+        }
+
+
+        
+
+        calcPath = new NavMeshPath();
+        agentList[0].CalculatePath(agentList[1].gameObject.transform.position, calcPath);
+        for (int i = 0; i < calcPath.corners.Length - 1; i++)
+        {
+            Vector3 start = calcPath.corners[i];
+            Vector3 end = calcPath.corners[i + 1];
+            int steps = 50; // Number of points to generate between two corners
+            for (int j = 0; j < steps; j++)
+            {
+                Vector3 point = Vector3.Lerp(start, end, j / (float)steps);
+                if (Physics.Raycast(point, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground")))
+                {
+                    point.y = hit.point.y;
+                    Quaternion rotationNormal = Quaternion.FromToRotation(Vector3.up, hit.normal);
+                    Instantiate(cube, point, rotationNormal);
+                }
+                else steps++;
+            }
+            
         }
 
         // /////////////////////////////////////////////////////////////////////////////////////////
@@ -138,84 +183,93 @@ public class SingleTerrainGen : MonoBehaviour
                         {
                             instantiationPoint.y = hit.point.y;
                             Quaternion rotationNormal = Quaternion.FromToRotation(Vector3.up, hit.normal);
-                            Collider[] stoneColliders = Physics.OverlapSphere(instantiationPoint , 2f, LayerMask.GetMask("stone"));
+                            Collider[] stoneColliders = Physics.OverlapSphere(instantiationPoint, 2f, LayerMask.GetMask("stone"));
                             Collider[] wellColliders = Physics.OverlapSphere(instantiationPoint, 2f, LayerMask.GetMask("well"));
                             Collider[] houseColliders = Physics.OverlapSphere(instantiationPoint, 2f, LayerMask.GetMask("House"));
                             if (stoneColliders.Length == 0 && wellColliders.Length == 0 && houseColliders.Length == 0)
                             {
                                 Instantiate(chosenRock, instantiationPoint, rotationNormal);
-                            } 
-                        } else numSegments++;
+                            }
+                        }
+                        else numSegments++;
                     }
                 }
             }
-        } 
+        }
     }
-    
 
 
-    public void spawnSurroundingObjects(int count, float minDistance, float radiusChange, GameObject prefab){
-        for(int j = 0; j < scList.Count; j++) {
+
+    public void spawnSurroundingObjects(int count, float minDistance, float radiusChange, GameObject prefab)
+    {
+        for (int j = 0; j < scList.Count; j++)
+        {
             int spawned = 0;
             int iterations = 0;
             pathIteration = new List<Vector3>();
-            while (spawned < count && iterations < 1000) {
-                    Vector3 randomPos = scList[j].bounds.center + Random.insideUnitSphere * (scList[j].radius/radiusChange);
-                    randomPos.y = 1000f;
-                    if (Physics.Raycast(randomPos, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground")) && (hit.point.y < maxHeight && hit.point.y > minHeight)){
-                        int raycastCount = 360;
-                        float angleStep = 360f / raycastCount;
-                        Vector3 centeObj = prefab.transform.localScale / 2f;
-                        Vector3 instantiationPoint = randomPos + centeObj;
-                        instantiationPoint.y = hit.point.y;
-                        Vector3 center = scList[j].bounds.center;
-                        Vector3 newCenter = new Vector3(center.x, instantiationPoint.y,center.z);
-                        Vector3 direction = newCenter - instantiationPoint;
-                        direction = -direction;
-                        Quaternion rotationCenter = Quaternion.LookRotation(direction, Vector3.up);
-                        Quaternion rotationNormal = Quaternion.FromToRotation(Vector3.up, hit.normal); //possibly needed changing due to hit.normal not being the same hit point as instantiationPoint
-                        Quaternion finalRotation = rotationNormal * rotationCenter;
+            while (spawned < count && iterations < 1000)
+            {
+                Vector3 randomPos = scList[j].bounds.center + Random.insideUnitSphere * (scList[j].radius / radiusChange);
+                randomPos.y = 1000f;
+                if (Physics.Raycast(randomPos, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground")) && (hit.point.y < maxHeight && hit.point.y > minHeight))
+                {
+                    int raycastCount = 360;
+                    float angleStep = 360f / raycastCount;
+                    Vector3 centeObj = prefab.transform.localScale / 2f;
+                    Vector3 instantiationPoint = randomPos + centeObj;
+                    instantiationPoint.y = hit.point.y;
+                    Vector3 center = scList[j].bounds.center;
+                    Vector3 newCenter = new Vector3(center.x, instantiationPoint.y, center.z);
+                    Vector3 direction = newCenter - instantiationPoint;
+                    direction = -direction;
+                    Quaternion rotationCenter = Quaternion.LookRotation(direction, Vector3.up);
+                    Quaternion rotationNormal = Quaternion.FromToRotation(Vector3.up, hit.normal); //possibly needed changing due to hit.normal not being the same hit point as instantiationPoint
+                    Quaternion finalRotation = rotationNormal * rotationCenter;
 
-                        //Check if too close too height change
-                        Vector3 checkSurround = new Vector3(instantiationPoint.x, instantiationPoint.y + 6.5f, instantiationPoint.z);
-                        for (int i = 0; i < raycastCount; i++)
+                    //Check if too close too height change
+                    Vector3 checkSurround = new Vector3(instantiationPoint.x, instantiationPoint.y + 6.5f, instantiationPoint.z);
+                    for (int i = 0; i < raycastCount; i++)
+                    {
+                        float angle = i * angleStep;
+                        Vector3 checkDirection = Quaternion.Euler(0, angle, 0) * Vector3.right;
+                        if (Physics.Raycast(checkSurround, checkDirection, out hit, 20f, LayerMask.GetMask("Ground"))) continue;
+
+                    }
+
+                    // Check if any houses are in the way
+                    float distanceToWell = Vector3.Distance(center, checkSurround);
+                    Vector3 difference = center - checkSurround;
+                    Vector3 toCenter = difference.normalized;
+                    if (Physics.Raycast(checkSurround, toCenter, out hit, distanceToWell - 5f, LayerMask.GetMask("House"))) continue;
+
+                    Vector3 euler = finalRotation.eulerAngles;
+                    euler.x = (euler.x > 180) ? euler.x - 360 : euler.x;
+                    euler.z = (euler.z > 180) ? euler.z - 360 : euler.z;
+                    if (euler.x > minSlope && euler.x < maxSlope && euler.z > minSlope && euler.z < maxSlope)
+                    {
+                        instantiationPoint = new Vector3(instantiationPoint.x, instantiationPoint.y - 1.5f, instantiationPoint.z);
+                        Collider[] surroundingColliders = Physics.OverlapSphere(instantiationPoint, 50f, LayerMask.GetMask("House"));
+                        //print(scList[j]+" "+surroundingColliders.Length + surroundingColliders[0].name);
+                        if (surroundingColliders.Length == 0)
                         {
-                            float angle = i * angleStep;
-                            Vector3 checkDirection = Quaternion.Euler(0, angle, 0) * Vector3.right;
-                            if (Physics.Raycast(checkSurround, checkDirection, out hit, 20f, LayerMask.GetMask("Ground"))) continue;
-
-                        }
-
-                        // Check if any houses are in the way
-                        float distanceToWell = Vector3.Distance(center , checkSurround);
-                        Vector3 difference = center - checkSurround;
-                        Vector3 toCenter = difference.normalized;
-                        if (Physics.Raycast(checkSurround, toCenter, out hit, distanceToWell-5f, LayerMask.GetMask("House"))) continue;
-
-                        Vector3 euler = finalRotation.eulerAngles;
-                        euler.x = (euler.x > 180) ? euler.x - 360 : euler.x;
-                        euler.z = (euler.z > 180) ? euler.z - 360 : euler.z;
-                        if(euler.x > minSlope && euler.x < maxSlope && euler.z > minSlope && euler.z < maxSlope){
-                            instantiationPoint = new Vector3(instantiationPoint.x, instantiationPoint.y - 1.5f, instantiationPoint.z);
-                            Collider[] surroundingColliders = Physics.OverlapSphere(instantiationPoint, 50f, LayerMask.GetMask("House"));
-                            //print(scList[j]+" "+surroundingColliders.Length + surroundingColliders[0].name);
-                            if(surroundingColliders.Length == 0){
-                                float distance = Vector3.Distance(instantiationPoint, center);
-                                if(distance >= minDistance) {
-                                    print("---------" + instantiationPoint + " " + randomPos);
-                                    GameObject spawnedObj = Instantiate(prefab, instantiationPoint, finalRotation);
-                                    spawnedObj.name = "House " + j.ToString() + spawned.ToString();
-                                    spawnedObj.AddComponent<SphereCollider>();
-                                    spawnedObj.GetComponent<SphereCollider>().radius = 50f;
-                                    spawnedObj.GetComponent<SphereCollider>().isTrigger = true;
-                                    pathIteration.Add(instantiationPoint);
-                                    spawned++;
-                                    if (spawned == count) pathList.Add(pathIteration);
-                                }
+                            float distance = Vector3.Distance(instantiationPoint, center);
+                            if (distance >= minDistance)
+                            {
+                                print("---------" + instantiationPoint + " " + randomPos);
+                                GameObject spawnedObj = Instantiate(prefab, instantiationPoint, finalRotation);
+                                spawnedObj.name = "House " + j.ToString() + spawned.ToString();
+                                spawnedObj.AddComponent<SphereCollider>();
+                                spawnedObj.GetComponent<SphereCollider>().radius = 50f;
+                                spawnedObj.GetComponent<SphereCollider>().isTrigger = true;
+                                pathIteration.Add(instantiationPoint);
+                                spawned++;
+                                if (spawned == count) pathList.Add(pathIteration);
                             }
                         }
-                    } iterations++;
+                    }
                 }
-            } 
+                iterations++;
+            }
         }
+    }
     }

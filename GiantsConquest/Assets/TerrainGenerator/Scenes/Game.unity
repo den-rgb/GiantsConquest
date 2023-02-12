@@ -448,6 +448,8 @@ MonoBehaviour:
   minSlope: -15
   path:
   - {fileID: 2375312654567762737, guid: b9f8cd9022535c7f9b9a6036adbdac98, type: 3}
+  cube: {fileID: 4596048570374701365, guid: d9ccc61e1f214b3448a860dacb678e11, type: 3}
+  agentPos: {fileID: 4208279523541357536, guid: 9cefb03a9455c804c93c1c1f0780ca15, type: 3}
 --- !u!1 &1068790911 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8844215987645049252, guid: 1d338535251529b4bbd2cc905abe6622, type: 3}
