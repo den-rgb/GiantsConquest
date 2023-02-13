@@ -27,7 +27,8 @@ public class SingleTerrainGen : MonoBehaviour
     private NavMeshPath calcPath;
     public GameObject cube;
     public GameObject agentPos;
-
+    private GameObject agent;
+    public GameObject mark;
     public void Start()
     {
         
@@ -59,7 +60,15 @@ public class SingleTerrainGen : MonoBehaviour
         water.transform.position = new Vector3(0, -150, 0);
 
         
-        
+        // /////////////////////////////////////////////////////////////////////////////////////////
+        /// NavMesh
+        //// /////////////////////////////////////////////////////////////////////////////////////////
+        navMeshSurface = spawned.AddComponent<NavMeshSurface>();
+        navMeshSurface.overrideVoxelSize = true;
+        navMeshSurface.voxelSize = 1;
+        NavMeshBuildSettings buildSettings = navMeshSurface.GetBuildSettings();
+        buildSettings.agentSlope = 25;
+        navMeshSurface.BuildNavMesh();
 
         /// /////////////////////////////////////////////////////////////////////////////////////////
         /// center spawn 
@@ -68,18 +77,6 @@ public class SingleTerrainGen : MonoBehaviour
         terrainCollider = spawned.GetComponent<MeshCollider>();
         int numberOfObjects = 3;
         Vector3 terrainSize = spawned.GetComponentInChildren<MeshRenderer>().bounds.size;
-
-
-        navMeshSurface = spawned.AddComponent<NavMeshSurface>();
-        navMeshSurface.overrideVoxelSize = true;
-        navMeshSurface.voxelSize = 1;
-        NavMeshBuildSettings buildSettings = navMeshSurface.GetBuildSettings();
-        buildSettings.agentSlope = 25;
-
-        navMeshSurface.BuildNavMesh();
-
-
-
 
         for (int i = 0; i < numberOfObjects; i++)
         {
@@ -97,15 +94,16 @@ public class SingleTerrainGen : MonoBehaviour
                 {
                     // Spawn the object at the hit point
                     GameObject villageCenter = Instantiate(well, position, rotation);
-                    GameObject agent = Instantiate(agentPos, position, rotation);
+                    agentPos.transform.position = villageCenter.transform.position;
+                    agent = Instantiate(agentPos, position, rotation);
+        
                     villageCenter.name = "Well" + scList.Count.ToString();
                     SphereCollider villageCenterCollider = villageCenter.AddComponent<SphereCollider>();
                     villageCenterCollider.radius = 200f;
                     villageCenterCollider.isTrigger = true;
                     scList.Add(villageCenterCollider);
 
-                    pathAgent = agent.AddComponent<NavMeshAgent>();
-                    agentList.Add(pathAgent);
+                    agentList.Add(agent.GetComponent<NavMeshAgent>());
                 }
                 else
                 {
@@ -118,29 +116,51 @@ public class SingleTerrainGen : MonoBehaviour
             }
         }
 
+        
 
         
 
         calcPath = new NavMeshPath();
+        
+
+        // Calculate the total length of the path
         agentList[0].CalculatePath(agentList[1].gameObject.transform.position, calcPath);
+        
         for (int i = 0; i < calcPath.corners.Length - 1; i++)
         {
             Vector3 start = calcPath.corners[i];
             Vector3 end = calcPath.corners[i + 1];
-            int steps = 50; // Number of points to generate between two corners
-            for (int j = 0; j < steps; j++)
+            float distance = Vector3.Distance(start, end);
+            float half = distance / 2;
+            Vector3 halfPos = Vector3.Lerp(start, end, half / distance);
+            Vector3 direction = (end - start).normalized;  
+            Vector3 perpendicular = new Vector3(-direction.z, 0, direction.x);
+            Vector3 offset = perpendicular * 100f; 
+            Vector3 halfPointOffset = halfPos + offset;
+            int steps = Mathf.RoundToInt(distance / 7f);
+            bool swapDir = false;
+            int count = 0;
+            for (int j = 0; j <= steps; j++)
             {
-                Vector3 point = Vector3.Lerp(start, end, j / (float)steps);
-                if (Physics.Raycast(point, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground")))
-                {
+                float t = (float)j / steps;
+                Vector3 point = CalculateQuadraticBezierPoint(t, start, halfPointOffset, end);
+                
+                point.y = 1000f;
+                //Vector3 newPoint = point + offset;
+
+                if (Physics.Raycast(point, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground"))){
                     point.y = hit.point.y;
-                    Quaternion rotationNormal = Quaternion.FromToRotation(Vector3.up, hit.normal);
-                    Instantiate(cube, point, rotationNormal);
+                    Instantiate(cube, point, Quaternion.identity);
+                    
                 }
-                else steps++;
+                
             }
-            
         }
+
+        
+
+
+        
 
         // /////////////////////////////////////////////////////////////////////////////////////////
         // // surrounding houses spawn
@@ -255,7 +275,7 @@ public class SingleTerrainGen : MonoBehaviour
                             float distance = Vector3.Distance(instantiationPoint, center);
                             if (distance >= minDistance)
                             {
-                                print("---------" + instantiationPoint + " " + randomPos);
+                                //print("---------" + instantiationPoint + " " + randomPos);
                                 GameObject spawnedObj = Instantiate(prefab, instantiationPoint, finalRotation);
                                 spawnedObj.name = "House " + j.ToString() + spawned.ToString();
                                 spawnedObj.AddComponent<SphereCollider>();
@@ -272,4 +292,15 @@ public class SingleTerrainGen : MonoBehaviour
             }
         }
     }
+
+    Vector3 CalculateQuadraticBezierPoint(float t, Vector3 p0, Vector3 p1, Vector3 p2)
+    {
+        float u = 1 - t;
+        float tt = t * t;
+        float uu = u * u;
+        Vector3 p = uu * p0;
+        p += 2 * u * t * p1;
+        p += tt * p2;
+        return p;
     }
+}
