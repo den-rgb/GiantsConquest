@@ -126,23 +126,37 @@ public class SingleTerrainGen : MonoBehaviour
         // Calculate the total length of the path
         agentList[0].CalculatePath(agentList[1].gameObject.transform.position, calcPath);
         
-            for (int i = 0; i < calcPath.corners.Length - 1; i++)
+        for (int i = 0; i < calcPath.corners.Length - 1; i++)
+        {
+            Vector3 start = calcPath.corners[i];
+            Vector3 end = calcPath.corners[i + 1];
+            float distance = Vector3.Distance(start, end);
+            float half = distance / 2;
+            Vector3 halfPos = Vector3.Lerp(start, end, half / distance);
+            Vector3 direction = (end - start).normalized;  
+            Vector3 perpendicular = new Vector3(-direction.z, 0, direction.x);
+            Vector3 offset = perpendicular * 100f; 
+            Vector3 halfPointOffset = halfPos + offset;
+            int steps = Mathf.RoundToInt(distance / 7f);
+            bool swapDir = false;
+            int count = 0;
+            for (int j = 0; j <= steps; j++)
             {
-                Vector3 start = calcPath.corners[i];
-                Vector3 end = calcPath.corners[i + 1];
-                float distance = Vector3.Distance(start, end);
-                int steps = Mathf.RoundToInt(distance / 5f);
+                float t = (float)j / steps;
+                Vector3 point = CalculateQuadraticBezierPoint(t, start, halfPointOffset, end);
+                
+                point.y = 1000f;
+                //Vector3 newPoint = point + offset;
 
-                for (int j = 0; j <= steps; j++)
-                {
-                    Vector3 point = Vector3.Lerp(start, end, (float)j / steps);
-                    point.y = 1000f;
-                    if (Physics.Raycast(point, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground"))){
-                        point.y = hit.point.y;
-                        Instantiate(cube, point, Quaternion.identity);
-                    }
+                if (Physics.Raycast(point, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground"))){
+                    point.y = hit.point.y;
+                    Instantiate(cube, point, Quaternion.identity);
+                    
                 }
+                
             }
+        }
+
         
 
 
@@ -261,7 +275,7 @@ public class SingleTerrainGen : MonoBehaviour
                             float distance = Vector3.Distance(instantiationPoint, center);
                             if (distance >= minDistance)
                             {
-                                print("---------" + instantiationPoint + " " + randomPos);
+                                //print("---------" + instantiationPoint + " " + randomPos);
                                 GameObject spawnedObj = Instantiate(prefab, instantiationPoint, finalRotation);
                                 spawnedObj.name = "House " + j.ToString() + spawned.ToString();
                                 spawnedObj.AddComponent<SphereCollider>();
@@ -278,4 +292,15 @@ public class SingleTerrainGen : MonoBehaviour
             }
         }
     }
+
+    Vector3 CalculateQuadraticBezierPoint(float t, Vector3 p0, Vector3 p1, Vector3 p2)
+    {
+        float u = 1 - t;
+        float tt = t * t;
+        float uu = u * u;
+        Vector3 p = uu * p0;
+        p += 2 * u * t * p1;
+        p += tt * p2;
+        return p;
     }
+}
