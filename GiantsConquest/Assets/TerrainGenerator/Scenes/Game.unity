@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.18028435, g: 0.2257147, b: 0.30692327, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028416, g: 0.22571437, b: 0.3069228, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -107,7 +107,7 @@ NavMeshSettings:
     serializedVersion: 2
     agentTypeID: 0
     agentRadius: 0.5
-    agentHeight: 2
+    agentHeight: 10
     agentSlope: 45
     agentClimb: 0.4
     ledgeDropHeight: 0
@@ -446,11 +446,17 @@ MonoBehaviour:
   minHeight: 200
   maxSlope: 15
   minSlope: -15
-  path:
+  rocks:
   - {fileID: 2375312654567762737, guid: b9f8cd9022535c7f9b9a6036adbdac98, type: 3}
   cube: {fileID: 4596048570374701365, guid: d9ccc61e1f214b3448a860dacb678e11, type: 3}
   agentPos: {fileID: 560504370446914134, guid: 9cefb03a9455c804c93c1c1f0780ca15, type: 3}
-  mark: {fileID: 3367096891942622583, guid: a47f2652333362a41bf93d9f4d21bbba, type: 3}
+  red: {fileID: 4635868952384355318, guid: ec18a130829421f59867fea9db38a2e4, type: 3}
+  blue: {fileID: 4976339199988818020, guid: a47f2652333362a41bf93d9f4d21bbba, type: 3}
+  green: {fileID: 6685146476297937637, guid: 9a27eed4544954666a51cf9f63e5bdec, type: 3}
+  walkableLayer:
+    serializedVersion: 2
+    m_Bits: 8
+  maxHeightDifference: 7
 --- !u!1 &1068790911 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8844215987645049252, guid: 1d338535251529b4bbd2cc905abe6622, type: 3}

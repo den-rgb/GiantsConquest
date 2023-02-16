@@ -1,8 +1,11 @@
 
-using System.Collections;
+
+
+
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+
 
 
 
@@ -21,14 +24,20 @@ public class SingleTerrainGen : MonoBehaviour
     private List<List<Vector3>> pathList = new List<List<Vector3>>();
     private List<NavMeshAgent> agentList = new List<NavMeshAgent>();
     private List<Vector3> pathIteration;
-    public GameObject[] path;
+    public GameObject[] rocks;
     private NavMeshSurface navMeshSurface;
     private NavMeshAgent pathAgent;
     private NavMeshPath calcPath;
     public GameObject cube;
     public GameObject agentPos;
     private GameObject agent;
-    public GameObject mark;
+    public GameObject red;
+    public GameObject blue;
+    public GameObject green;
+    public LayerMask walkableLayer;
+    private List<Vector3> path = new List<Vector3>();
+
+    private List<GameObject> InstantiatedPath = new List<GameObject>();
 
     public void Start()
     {
@@ -55,6 +64,8 @@ public class SingleTerrainGen : MonoBehaviour
         script.generateWater = true;
         script.GenerateRandomSeed();
         script.GenerateMap();
+        Mesh m = spawned.GetComponent<MeshCollider>().sharedMesh;
+        m.RecalculateBounds();
         spawned.transform.DetachChildren();
         WaterGenerator waterScript = FindObjectOfType<WaterGenerator>();
         GameObject water = waterScript.gameObject;
@@ -103,7 +114,7 @@ public class SingleTerrainGen : MonoBehaviour
                     villageCenterCollider.radius = 200f;
                     villageCenterCollider.isTrigger = true;
                     scList.Add(villageCenterCollider);
-
+                    
                     agentList.Add(agent.GetComponent<NavMeshAgent>());
                 }
                 else
@@ -116,104 +127,17 @@ public class SingleTerrainGen : MonoBehaviour
                 numberOfObjects++;
             }
         }
+        
+       generatePath(agentList[0], agentList[1].transform.position);
+        
+
+        
+    
 
 
-
-
-
-        calcPath = new NavMeshPath();
-
-
-        // Calculate the total length of the path
-        agentList[0].CalculatePath(agentList[1].gameObject.transform.position, calcPath);
-        Vector3 start = agentList[0].gameObject.transform.position;
-        Vector3 end = agentList[1].gameObject.transform.position;
-        float dist = Vector3.Distance(start, end);
-        int numCorners = calcPath.corners.Length;
-        int steps = Mathf.RoundToInt(dist / 7f);
-        List<Vector3> corners = new List<Vector3>();
-        corners.Add(agentList[0].gameObject.transform.position);
-        for (int i = 0; i < calcPath.corners.Length - 1; i++)
-        {
-            Vector3 corner1 = calcPath.corners[i];
-            Vector3 corner2 = calcPath.corners[i + 1];
-            Vector3 cornerDirection = (corner2 - corner1).normalized;
-            Vector3 cornerMidpoint = (corner1 + corner2) / 2f;
-
-            // Find the perpendicular direction to the corner direction
-            Vector3 perpendicularDirection = new Vector3(-cornerDirection.z, 0f, cornerDirection.x);
-            if (perpendicularDirection == Vector3.zero) // Corner direction is straight up or down
-            {
-                perpendicularDirection = new Vector3(1f, 0f, 0f);
-            }
-
-            // Alternate between left and right offsets
-            int offsetSign = (i % 2 == 0) ? 1 : -1;
-            Vector3 cornerOffset = perpendicularDirection * Random.Range(50f,200f) * offsetSign;
-
-            // Check if there is a mesh height difference of more than 600f around the corner
-            RaycastHit hit;
-            if (Physics.Raycast(cornerMidpoint + cornerOffset, Vector3.down, out hit, 1000f, LayerMask.GetMask("Ground")))
-            {
-                float heightDiff = hit.point.y - cornerMidpoint.y;
-                if (Mathf.Abs(heightDiff) > maxHeight)
-                {
-                    cornerOffset = -perpendicularDirection * 50f * offsetSign;
-                }
-            }
-
-            corners.Add(corner1);
-            corners.Add(cornerMidpoint + cornerOffset);
-        }
-        corners.Add(agentList[1].gameObject.transform.position);
-        for (int j = 0; j <= steps; j++)
-        {
-            float t = (float)j / (steps - 1);
-            Vector3 point = CalculateBezierPoint(t, corners);
-            point.y = 1000f;
-
-            // Check if the point is over a high mesh
-            if (Physics.Raycast(point, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground")))
-            {
-                float heightDiff = hit.point.y - point.y;
-                if (heightDiff > 600f)
-                {
-                    // Move the point 50f away from its current position in the opposite direction
-                    Vector3 moveDirection = -hit.normal.normalized;
-                    point += moveDirection * 50f;
-                }
-
-                // Check if the slope is less than or equal to 15 degrees
-                if (Vector3.Angle(hit.normal, Vector3.up) <= 15f)
-                {
-                    point.y = 1000f;
-                    if (Physics.Raycast(point, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground")))
-                    {
-                        point.y = hit.point.y;
-                        Instantiate(mark, point, Quaternion.identity);
-                    }
-                
-                }
-                else
-                {
-                    // Move the point 50f away from its current position in the opposite direction
-                    Vector3 moveDirection = -hit.normal.normalized;
-                    point += moveDirection * 50f;
-                    point.y = 1000f;
-                    if (Physics.Raycast(point, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground")))
-                    {
-                        point.y = hit.point.y;
-                        Instantiate(mark, point, Quaternion.identity);
-                    }
-
-                }
-            }
-        }
-
-
-
-        //for (int i = 0; i < calcPath.corners.Length - 1; i++)
-        //{
+        // List<Vector3> corners = new List<Vector3>();
+        // for (int i = 0; i < calcPath.corners.Length - 1; i++)
+        // {
         //    Vector3 start = calcPath.corners[i];
         //    Vector3 end = calcPath.corners[i + 1];
         //    float distance = Vector3.Distance(start, end);
@@ -243,20 +167,25 @@ public class SingleTerrainGen : MonoBehaviour
         //            + currRight * distance * (Random.Range(-1f, 1f) * randomScale + j * randomScale)
         //            + up * distance * (Random.Range(-1f, 1f) * randomScale + j * randomScale);
         //    }
-
+        //     for( int s =0; s<controlPoints.Length; s++){
+        //     corners.Add(controlPoints[s]);
+        //     }
         //    // Generate points along Bezier curve with random offsets
         //    int steps = Mathf.RoundToInt(distance / 7f);
         //    for (int j = 0; j <= steps; j++)
         //    {
+            
         //        float t = (float)j / steps;
-        //        Vector3 point = CalculateCubicBezierPoint(t, controlPoints[0], controlPoints[1], controlPoints[2], controlPoints[3]);
+        //        Vector3 point = CalculateBezierPoint(t, corners);
         //        point.y = 1000f;
 
-        //        // Add a small random offset to each point in a direction perpendicular to the tangent
-        //        float offsetScale = 0.5f;
-        //        Vector3 tangent = CalculateCubicBezierPoint(t, controlPoints[0], controlPoints[1], controlPoints[2], controlPoints[3]);
-        //        Vector3 offset = Vector3.Cross(tangent, Vector3.up).normalized * (Random.Range(-1f, 1f) * offsetScale);
-        //        point += offset;
+               
+
+        //     //    // Add a small random offset to each point in a direction perpendicular to the tangent
+        //     //    float offsetScale = 0.5f;
+        //     //    Vector3 tangent = CalculateBezierPoint(t, corners);
+        //     //    Vector3 offset = Vector3.Cross(tangent, Vector3.up).normalized * (Random.Range(-1f, 1f) * offsetScale);
+        //     //    point += offset;
 
         //        if (Physics.Raycast(point, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground")))
         //        {
@@ -264,7 +193,7 @@ public class SingleTerrainGen : MonoBehaviour
         //            Instantiate(mark, point, Quaternion.identity);
         //        }
         //    }
-        //}
+        // }
 
 
 
@@ -305,7 +234,7 @@ public class SingleTerrainGen : MonoBehaviour
                         if (distance < 100f) offset = Random.onUnitSphere * 2;
                         else offset = Random.onUnitSphere * 3;
                         sectionPoint += offset;
-                        GameObject chosenRock = path[Random.Range(0, path.Length)];
+                        GameObject chosenRock = rocks[Random.Range(0, rocks.Length)];
                         Vector3 centerObj = chosenRock.transform.localScale / 2f;
                         Vector3 instantiationPoint = sectionPoint + centerObj;
                         Vector3 sectionPointUp = instantiationPoint + new Vector3(0, 50, 0);
@@ -414,11 +343,72 @@ public class SingleTerrainGen : MonoBehaviour
         for (int i = 0; i < points.Count - 1; i++)
         {
             Vector3 newPoint = Vector3.Lerp(points[i], points[i + 1], t);
+            
             newPoints.Add(newPoint);
         }
 
         return CalculateBezierPoint(t, newPoints);
     }
 
+   
+
+    public void generatePath(NavMeshAgent startAgent, Vector3 end) {
+        calcPath = new NavMeshPath();
+        startAgent.CalculatePath(end, calcPath);
+        Vector3 start = startAgent.gameObject.transform.position;
+        
+        int numCorners = calcPath.corners.Length;
+        
+        List<Vector3> corners = new List<Vector3>();
+        float dist1 = Vector3.Distance(start, end);
+        int steps1 = Mathf.RoundToInt(dist1 / 7f);
+        int steps = 0;
+        for (int i = 0; i < calcPath.corners.Length - 1; i++) {
+
+            Vector3 startPoint = calcPath.corners[i];
+            corners.Add(startPoint);
+            Vector3 endPoint = calcPath.corners[i + 1];
+            Vector3 controlPoint = (startPoint + endPoint) / 2f;
+            float dist = Vector3.Distance(startPoint, endPoint);
+            steps = Mathf.RoundToInt(dist / 7f);
+            corners.Add(controlPoint);
+            corners.Add(endPoint);
+
+            
+
+        }
+        for (int j = 0; j <= steps1; j++) { //change to steps
+                float t = (float)j / (steps1 - 1);
+                Vector3 point = CalculateBezierPoint(t, corners);
+                point.y = 1000f;
+
+                if (Physics.Raycast(point, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground"))) {
+                    point = hit.point;
+                    Quaternion rotationNormal = Quaternion.FromToRotation(Vector3.up, hit.normal);
+                    GameObject c = Instantiate(red, point, rotationNormal);
+                    InstantiatedPath.Add(c);
+                }
+            }
+
+        for (int j = 0; j <= steps1; j++)
+            {
+                float t = (float)j / (steps1 - 1);
+                Vector3 point = Vector3.Lerp(calcPath.corners[0], calcPath.corners[calcPath.corners.Length-1], t);
+                point.y = 1000f;
+                
+                if (Physics.Raycast(point, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground")))
+                {
+                    point = hit.point;
+                    Quaternion rotationNormal = Quaternion.FromToRotation(Vector3.up, hit.normal);
+                    GameObject c = Instantiate(blue, point, rotationNormal);
+                    InstantiatedPath.Add(c);
+                }
+            }
+    }
 
 }
+    
+
+    
+
+
