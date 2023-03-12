@@ -10,10 +10,10 @@ using UnityEngine.AI;
 
 
 public class SingleTerrainGen : MonoBehaviour
-{   
+{
     public GameObject terrainToSpawn;
     public GameObject well;
-    public GameObject  villageHouse;
+    public GameObject villageHouse;
     private MeshCollider terrainCollider;
     public float maxHeight;
     public float minHeight;
@@ -22,7 +22,7 @@ public class SingleTerrainGen : MonoBehaviour
     private RaycastHit hit;
     private List<SphereCollider> scList = new List<SphereCollider>();
     private List<List<Vector3>> pathList = new List<List<Vector3>>();
-    private List<NavMeshAgent> agentList = new List<NavMeshAgent>();
+    public List<NavMeshAgent> agentList = new List<NavMeshAgent>();
     private List<Vector3> pathIteration;
     public GameObject[] rocks;
     private NavMeshSurface navMeshSurface;
@@ -37,11 +37,11 @@ public class SingleTerrainGen : MonoBehaviour
     public LayerMask walkableLayer;
     private List<Vector3> path = new List<Vector3>();
 
-    private List<GameObject> InstantiatedPath = new List<GameObject>();
+    public List<GameObject> InstantiatedPath = new List<GameObject>();
 
     public void Start()
     {
-        
+
         GameObject spawned = Instantiate(terrainToSpawn, new Vector3(0, 0, 0), Quaternion.identity);
         MapGenerator script = spawned.GetComponent<MapGenerator>();
         float height = Random.Range(150, 300);
@@ -71,7 +71,7 @@ public class SingleTerrainGen : MonoBehaviour
         GameObject water = waterScript.gameObject;
         water.transform.position = new Vector3(0, -150, 0);
 
-        
+
         // /////////////////////////////////////////////////////////////////////////////////////////
         /// NavMesh
         //// /////////////////////////////////////////////////////////////////////////////////////////
@@ -108,13 +108,13 @@ public class SingleTerrainGen : MonoBehaviour
                     GameObject villageCenter = Instantiate(well, position, rotation);
                     agentPos.transform.position = villageCenter.transform.position;
                     agent = Instantiate(agentPos, position, rotation);
-        
+
                     villageCenter.name = "Well" + scList.Count.ToString();
                     SphereCollider villageCenterCollider = villageCenter.AddComponent<SphereCollider>();
                     villageCenterCollider.radius = 200f;
                     villageCenterCollider.isTrigger = true;
                     scList.Add(villageCenterCollider);
-                    
+
                     agentList.Add(agent.GetComponent<NavMeshAgent>());
                 }
                 else
@@ -127,12 +127,12 @@ public class SingleTerrainGen : MonoBehaviour
                 numberOfObjects++;
             }
         }
-        
-       generatePath(agentList[0], agentList[1].transform.position);
-        
 
-        
-    
+        generatePath(agentList[0], agentList[1].transform.position);
+
+
+
+
 
 
         // List<Vector3> corners = new List<Vector3>();
@@ -174,12 +174,12 @@ public class SingleTerrainGen : MonoBehaviour
         //    int steps = Mathf.RoundToInt(distance / 7f);
         //    for (int j = 0; j <= steps; j++)
         //    {
-            
+
         //        float t = (float)j / steps;
         //        Vector3 point = CalculateBezierPoint(t, corners);
         //        point.y = 1000f;
 
-               
+
 
         //     //    // Add a small random offset to each point in a direction perpendicular to the tangent
         //     //    float offsetScale = 0.5f;
@@ -343,27 +343,29 @@ public class SingleTerrainGen : MonoBehaviour
         for (int i = 0; i < points.Count - 1; i++)
         {
             Vector3 newPoint = Vector3.Lerp(points[i], points[i + 1], t);
-            
+
             newPoints.Add(newPoint);
         }
 
         return CalculateBezierPoint(t, newPoints);
     }
 
-   
 
-    public void generatePath(NavMeshAgent startAgent, Vector3 end) {
+
+    public void generatePath(NavMeshAgent startAgent, Vector3 end)
+    {
         calcPath = new NavMeshPath();
         startAgent.CalculatePath(end, calcPath);
         Vector3 start = startAgent.gameObject.transform.position;
-        
+
         int numCorners = calcPath.corners.Length;
-        
+
         List<Vector3> corners = new List<Vector3>();
         float dist1 = Vector3.Distance(start, end);
         int steps1 = Mathf.RoundToInt(dist1 / 7f);
         int steps = 0;
-        for (int i = 0; i < calcPath.corners.Length - 1; i++) {
+        for (int i = 0; i < calcPath.corners.Length - 1; i++)
+        {
 
             Vector3 startPoint = calcPath.corners[i];
             corners.Add(startPoint);
@@ -374,41 +376,45 @@ public class SingleTerrainGen : MonoBehaviour
             corners.Add(controlPoint);
             corners.Add(endPoint);
 
-            
+
 
         }
-        for (int j = 0; j <= steps1; j++) { //change to steps
-                float t = (float)j / (steps1 - 1);
-                Vector3 point = CalculateBezierPoint(t, corners);
-                point.y = 1000f;
+        for (int j = 0; j <= steps1; j++)
+        { //change to steps
+            float t = (float)j / (steps1 - 1);
+            Vector3 point = CalculateBezierPoint(t, corners);
+            point.y = 1000f;
 
-                if (Physics.Raycast(point, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground"))) {
-                    point = hit.point;
-                    Quaternion rotationNormal = Quaternion.FromToRotation(Vector3.up, hit.normal);
-                    GameObject c = Instantiate(red, point, rotationNormal);
-                    InstantiatedPath.Add(c);
-                }
+            if (Physics.Raycast(point, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground")))
+            {
+                point = hit.point;
+                Quaternion rotationNormal = Quaternion.FromToRotation(Vector3.up, hit.normal);
+                GameObject c = Instantiate(red, point, rotationNormal);
+                c.name = red.name + j.ToString();
+                InstantiatedPath.Add(c);
+
             }
+        }
 
         for (int j = 0; j <= steps1; j++)
+        {
+            float t = (float)j / (steps1 - 1);
+            Vector3 point = Vector3.Lerp(calcPath.corners[0], calcPath.corners[calcPath.corners.Length - 1], t);
+            point.y = 1000f;
+
+            if (Physics.Raycast(point, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground")))
             {
-                float t = (float)j / (steps1 - 1);
-                Vector3 point = Vector3.Lerp(calcPath.corners[0], calcPath.corners[calcPath.corners.Length-1], t);
-                point.y = 1000f;
-                
-                if (Physics.Raycast(point, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground")))
-                {
-                    point = hit.point;
-                    Quaternion rotationNormal = Quaternion.FromToRotation(Vector3.up, hit.normal);
-                    GameObject c = Instantiate(blue, point, rotationNormal);
-                    InstantiatedPath.Add(c);
-                }
+                point = hit.point;
+                Quaternion rotationNormal = Quaternion.FromToRotation(Vector3.up, hit.normal);
+                GameObject c = Instantiate(blue, point, rotationNormal);
+
             }
+        }
     }
 
 }
-    
 
-    
+
+
 
 
