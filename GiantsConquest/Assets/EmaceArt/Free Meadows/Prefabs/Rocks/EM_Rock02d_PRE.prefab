@@ -10,7 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 3354642580954020046}
   - component: {fileID: 7553673530284920767}
-  m_Layer: 0
+  - component: {fileID: 1602416924097709776}
+  m_Layer: 6
   m_Name: EM_Rock02d_PRE
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27,6 +28,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5759879097830193985}
   - {fileID: 2387432816422071063}
@@ -61,6 +63,19 @@ LODGroup:
     renderers:
     - renderer: {fileID: 4852381753445982472}
   m_Enabled: 1
+--- !u!135 &1602416924097709776
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2721798204081939060}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.38816142
+  m_Center: {x: 0, y: 0, z: -0.11183858}
 --- !u!1 &3579072176976659800
 GameObject:
   m_ObjectHideFlags: 0
@@ -72,7 +87,7 @@ GameObject:
   - component: {fileID: 2387432816422071063}
   - component: {fileID: 8085899277569917872}
   - component: {fileID: 4182876553255833224}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: EM_Rock02d_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -89,6 +104,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 100, y: 100, z: 100}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3354642580954020046}
   m_RootOrder: 1
@@ -112,10 +128,12 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -140,6 +158,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &6111572656502368869
 GameObject:
   m_ObjectHideFlags: 0
@@ -151,7 +170,7 @@ GameObject:
   - component: {fileID: 8636197797823549769}
   - component: {fileID: 3887314434163214613}
   - component: {fileID: 4852381753445982472}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: EM_Rock02d_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -168,6 +187,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 100, y: 100, z: 100}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3354642580954020046}
   m_RootOrder: 2
@@ -191,10 +211,12 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -219,6 +241,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &9192484653218992261
 GameObject:
   m_ObjectHideFlags: 0
@@ -230,7 +253,7 @@ GameObject:
   - component: {fileID: 5759879097830193985}
   - component: {fileID: 8704683159203486272}
   - component: {fileID: 7506633273041935797}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: EM_Rock02d_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -247,6 +270,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 100, y: 100, z: 100}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3354642580954020046}
   m_RootOrder: 0
@@ -270,10 +294,12 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -298,3 +324,4 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}

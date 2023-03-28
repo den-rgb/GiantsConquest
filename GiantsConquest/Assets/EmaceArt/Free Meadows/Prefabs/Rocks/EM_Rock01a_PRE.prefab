@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5116994323131128616}
   - component: {fileID: 3045396120064847797}
   - component: {fileID: 2027521803651928023}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: EM_Rock01a_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28,6 +28,7 @@ Transform:
   m_LocalRotation: {x: 0.00000008146034, y: 0, z: -0, w: 1}
   m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 100, y: 100, z: 100}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7481516959227194556}
   m_RootOrder: 1
@@ -51,10 +52,12 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -79,6 +82,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &2041607226739989727
 GameObject:
   m_ObjectHideFlags: 0
@@ -91,7 +95,7 @@ GameObject:
   - component: {fileID: 4145234530391011410}
   - component: {fileID: 1454270678438270733}
   - component: {fileID: 8898829202272098396}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: EM_Rock01a_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -108,6 +112,7 @@ Transform:
   m_LocalRotation: {x: 0.00000008146034, y: 0, z: -0, w: 1}
   m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 100, y: 100, z: 100}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7481516959227194556}
   m_RootOrder: 0
@@ -131,10 +136,12 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -159,6 +166,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!64 &8898829202272098396
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -184,7 +192,7 @@ GameObject:
   - component: {fileID: 6031480433398629075}
   - component: {fileID: 4714756121168545645}
   - component: {fileID: 3429965986922551550}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: EM_Rock01a_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -201,6 +209,7 @@ Transform:
   m_LocalRotation: {x: 0.00000008146034, y: 0, z: -0, w: 1}
   m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 100, y: 100, z: 100}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7481516959227194556}
   m_RootOrder: 2
@@ -224,10 +233,12 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -252,6 +263,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &7825110616581633542
 GameObject:
   m_ObjectHideFlags: 0
@@ -262,7 +274,8 @@ GameObject:
   m_Component:
   - component: {fileID: 7481516959227194556}
   - component: {fileID: 2416655777931631565}
-  m_Layer: 0
+  - component: {fileID: 2410351713119345163}
+  m_Layer: 6
   m_Name: EM_Rock01a_PRE
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -279,6 +292,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4451501270190905317}
   - {fileID: 5116994323131128616}
@@ -313,3 +327,16 @@ LODGroup:
     renderers:
     - renderer: {fileID: 3429965986922551550}
   m_Enabled: 1
+--- !u!135 &2410351713119345163
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7825110616581633542}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.73455703
+  m_Center: {x: 0, y: 0.23455703, z: 0}

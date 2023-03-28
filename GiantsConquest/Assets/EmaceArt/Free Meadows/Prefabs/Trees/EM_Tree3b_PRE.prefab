@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4809717190196526517}
   - component: {fileID: 2805892624152945471}
   - component: {fileID: 1533594558662438116}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: EM_Tree3b_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28,6 +28,7 @@ Transform:
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5224366525265110282}
   m_RootOrder: 2
@@ -51,10 +52,12 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -79,6 +82,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &4885135661250527152
 GameObject:
   m_ObjectHideFlags: 0
@@ -89,7 +93,8 @@ GameObject:
   m_Component:
   - component: {fileID: 5224366525265110282}
   - component: {fileID: 1070363598566511227}
-  m_Layer: 0
+  - component: {fileID: 2736800002699041149}
+  m_Layer: 6
   m_Name: EM_Tree3b_PRE
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -106,6 +111,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3484586852244508844}
   - {fileID: 7007703057161526394}
@@ -140,6 +146,19 @@ LODGroup:
     renderers:
     - renderer: {fileID: 1533594558662438116}
   m_Enabled: 1
+--- !u!135 &2736800002699041149
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4885135661250527152}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 1.8563344
+  m_Center: {x: 0, y: 1.3563344, z: 0}
 --- !u!1 &5407734876651583205
 GameObject:
   m_ObjectHideFlags: 0
@@ -152,7 +171,7 @@ GameObject:
   - component: {fileID: 6685973774053777563}
   - component: {fileID: 1683383545265770457}
   - component: {fileID: 1244268244}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: EM_Tree3b_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -169,6 +188,7 @@ Transform:
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5224366525265110282}
   m_RootOrder: 0
@@ -192,10 +212,12 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -220,6 +242,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!64 &1244268244
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -245,7 +268,7 @@ GameObject:
   - component: {fileID: 7007703057161526394}
   - component: {fileID: 6077900790432932127}
   - component: {fileID: 7571756519221445945}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: EM_Tree3b_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -262,6 +285,7 @@ Transform:
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5224366525265110282}
   m_RootOrder: 1
@@ -285,10 +309,12 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -313,3 +339,4 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}

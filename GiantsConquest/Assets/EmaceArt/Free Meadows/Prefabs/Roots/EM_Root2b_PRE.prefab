@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 9183700077494805536}
   - component: {fileID: 1903770110213947522}
   - component: {fileID: 5926049395934778228}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: EM_Root2b_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -29,6 +29,7 @@ Transform:
   m_LocalRotation: {x: -0.34411204, y: 0.6177272, z: 0.6177272, w: 0.34411204}
   m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 100, y: 100, z: 100}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 6381378442159500711}
   m_RootOrder: 2
@@ -52,10 +53,12 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -80,6 +83,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!64 &5926049395934778228
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -105,7 +109,7 @@ GameObject:
   - component: {fileID: 7762273083798861049}
   - component: {fileID: 1414635870479359925}
   - component: {fileID: 5760757295615697936}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: EM_Root2b_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -122,6 +126,7 @@ Transform:
   m_LocalRotation: {x: -0.34411204, y: 0.6177272, z: 0.6177272, w: 0.34411204}
   m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 100, y: 100, z: 100}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 6381378442159500711}
   m_RootOrder: 0
@@ -145,10 +150,12 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -173,6 +180,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &6036201526118119197
 GameObject:
   m_ObjectHideFlags: 0
@@ -183,7 +191,8 @@ GameObject:
   m_Component:
   - component: {fileID: 6381378442159500711}
   - component: {fileID: 2221728494089280214}
-  m_Layer: 0
+  - component: {fileID: -1430591658443981645}
+  m_Layer: 3
   m_Name: EM_Root2b_PRE
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -200,6 +209,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7762273083798861049}
   - {fileID: 6728039351536437650}
@@ -234,6 +244,19 @@ LODGroup:
     renderers:
     - renderer: {fileID: 1903770110213947522}
   m_Enabled: 1
+--- !u!135 &-1430591658443981645
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6036201526118119197}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 1.3776803
+  m_Center: {x: -1.2732253, y: 0, z: 0}
 --- !u!1 &9070209468473519842
 GameObject:
   m_ObjectHideFlags: 0
@@ -245,7 +268,7 @@ GameObject:
   - component: {fileID: 6728039351536437650}
   - component: {fileID: 1031828435918620368}
   - component: {fileID: 2870671507981970511}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: EM_Root2b_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -262,6 +285,7 @@ Transform:
   m_LocalRotation: {x: -0.34411204, y: 0.6177272, z: 0.6177272, w: 0.34411204}
   m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 100, y: 100, z: 100}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 6381378442159500711}
   m_RootOrder: 1
@@ -285,10 +309,12 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -313,3 +339,4 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}

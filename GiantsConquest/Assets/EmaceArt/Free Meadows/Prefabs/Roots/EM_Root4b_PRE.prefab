@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2672761548658572816}
   - component: {fileID: 9157131617169106241}
   - component: {fileID: 1290244687005120807}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: EM_Root4b_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28,6 +28,7 @@ Transform:
   m_LocalRotation: {x: 0.7071068, y: 0, z: -0, w: 0.7071067}
   m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5269976634545165754}
   m_RootOrder: 0
@@ -51,10 +52,12 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -79,6 +82,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &4785469875392614144
 GameObject:
   m_ObjectHideFlags: 0
@@ -89,7 +93,8 @@ GameObject:
   m_Component:
   - component: {fileID: 5269976634545165754}
   - component: {fileID: 1114826151985078987}
-  m_Layer: 0
+  - component: {fileID: 3482430258275714060}
+  m_Layer: 3
   m_Name: EM_Root4b_PRE
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -106,6 +111,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2672761548658572816}
   - {fileID: 3321064413917443653}
@@ -140,6 +146,19 @@ LODGroup:
     renderers:
     - renderer: {fileID: 1351094964885197329}
   m_Enabled: 1
+--- !u!135 &3482430258275714060
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4785469875392614144}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.96670836
+  m_Center: {x: 0, y: 0.46670836, z: 0}
 --- !u!1 &8381096631749867582
 GameObject:
   m_ObjectHideFlags: 0
@@ -151,7 +170,7 @@ GameObject:
   - component: {fileID: 3321064413917443653}
   - component: {fileID: 7419014502003074075}
   - component: {fileID: 8293599792786397621}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: EM_Root4b_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -168,6 +187,7 @@ Transform:
   m_LocalRotation: {x: 0.7071068, y: 0, z: -0, w: 0.7071067}
   m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5269976634545165754}
   m_RootOrder: 1
@@ -191,10 +211,12 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -219,6 +241,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &9035278254299981134
 GameObject:
   m_ObjectHideFlags: 0
@@ -230,7 +253,7 @@ GameObject:
   - component: {fileID: 3737372642543332653}
   - component: {fileID: 4270328378401201945}
   - component: {fileID: 1351094964885197329}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: EM_Root4b_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -247,6 +270,7 @@ Transform:
   m_LocalRotation: {x: 0.7071068, y: 0, z: -0, w: 0.7071067}
   m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5269976634545165754}
   m_RootOrder: 2
@@ -270,10 +294,12 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -298,3 +324,4 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}

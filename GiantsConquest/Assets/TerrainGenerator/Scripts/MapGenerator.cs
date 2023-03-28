@@ -53,6 +53,7 @@ public class MapGenerator : MonoBehaviour
     private Mesh _netMesh;
     private MeshCollider meshCollider;
     private MeshFilter meshFilter;
+    public float[,] noiseMap;
     public void GenerateMap() 
     {
         if (_mapDisplay == null)
@@ -69,7 +70,7 @@ public class MapGenerator : MonoBehaviour
         }
         meshCollider = GetComponent<MeshCollider>();
 
-        float[,] noiseMap = Noise.GenerateNoiseMap(mapSize, noiseData, island, islandSizeMultiplier);
+        noiseMap = Noise.GenerateNoiseMap(mapSize, noiseData, island, islandSizeMultiplier);
     
         _netMesh = MeshGenerator.GenerateTriangulatedMesh(mapSize, distributionData);
     
