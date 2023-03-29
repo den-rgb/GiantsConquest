@@ -93,7 +93,7 @@ public class SingleTerrainGen : MonoBehaviour
         gradient = GameObject.Find("Mesh2Terrain").GetComponent<TerrainColour>().gradient;
         float[,] noiseMap = spawned.GetComponent<MapGenerator>().noiseMap;
         convertedTerrain.AddComponent<TerrainColour>();
-        convertedTerrain.GetComponent<TerrainColour>().DisplayTerrain(noiseMap, convertedTerrain.GetComponent<Terrain>(), gradient);
+        convertedTerrain.GetComponent<TerrainColour>().DisplayTerrain(noiseMap, gradient, convertedTerrain.GetComponent<Terrain>());
 
         spawned.transform.DetachChildren();
         WaterGenerator waterScript = FindObjectOfType<WaterGenerator>();

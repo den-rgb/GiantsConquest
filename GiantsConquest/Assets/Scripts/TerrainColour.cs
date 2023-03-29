@@ -12,26 +12,38 @@ public class TerrainColour : MonoBehaviour
 
     
 
-    public Color[] GenerateColors(float[,] noiseMap, Terrain _terrain)
+    public Color[] GenerateColors(float[,] noiseMap, Gradient gradient)
     {
-        gradient = GameObject.Find("Mesh2Terrain").GetComponent<TerrainColour>().gradient;
-        if (_terrain == null)
-        {
-            _terrain = GetComponent<Terrain>();
-        }
-
-        int width = _terrain.terrainData.heightmapResolution;
-        int height = _terrain.terrainData.heightmapResolution;
+        int width = noiseMap.GetLength(0);
+        int height = noiseMap.GetLength(1);
 
         List<Color> colorMap = new List<Color>();
+        float minValue = float.MaxValue;
+        float maxValue = float.MinValue;
 
-        for (int y = 0; y < height ; y++)
+        // Find the minimum and maximum values in the noise map
+        for (int y = 0; y < height; y++)
         {
-            for (int x = 0; x < width ; x++)
+            for (int x = 0; x < width; x++)
             {
-                if (x == width - 1 || y == height - 1) continue;
+                if (noiseMap[x, y] < minValue)
+                {
+                    minValue = noiseMap[x, y];
+                }
+                if (noiseMap[x, y] > maxValue)
+                {
+                    maxValue = noiseMap[x, y];
+                }
+            }
+        }
+
+        // Generate colors for each point based on its height value
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
                 float heightValue = noiseMap[x, y];
-                colorMap.Add(gradient.Evaluate(heightValue));
+                colorMap.Add(gradient.Evaluate((heightValue - minValue) / (maxValue - minValue)));
             }
         }
 
@@ -39,61 +51,27 @@ public class TerrainColour : MonoBehaviour
     }
 
 
-    public void DisplayTerrain(float[,] noiseMap, Terrain _terrain, Gradient gradient)
-    {
-        int width = noiseMap.GetLength(0);
-        int height = noiseMap.GetLength(1);
 
-        // Generate the color map and apply it to the texture
-        Color[] colorMap = GenerateColors(noiseMap, _terrain);
-        if (texture == null)
+   public void DisplayTerrain(float[,] noiseMap, Gradient gradient, Terrain _terrain)
+    {
+        Color[] colourMap = GenerateColors(noiseMap, gradient);
+
+        // Create a texture from the color map
+        Texture2D texture = new Texture2D(noiseMap.GetLength(0), noiseMap.GetLength(1));
+        for (int y = 0; y < noiseMap.GetLength(1); y++)
         {
-            texture = new Texture2D(width - 1, height - 1);
-            texture.filterMode = FilterMode.Point;
+            for (int x = 0; x < noiseMap.GetLength(0); x++)
+            {
+                texture.SetPixel(x, y, colourMap[y * noiseMap.GetLength(0) + x]);
+            }
         }
-        texture.SetPixels(colorMap);
         texture.Apply();
 
-        // Apply the texture to the terrain
-        if (terrainLayer == null)
-        {
-            terrainLayer = new TerrainLayer();
-        }
-        terrainLayer.diffuseTexture = texture;
-        
-        TerrainData terrainData = _terrain.terrainData;
-        terrainData.terrainLayers = new TerrainLayer[] { terrainLayer };
-        
-        float[,,] splatmaps = new float[width, height, 1];
-        for (int x = 0; x < width; x++)
-        {
-            for (int y = 0; y < height; y++)
-            {
-                splatmaps[x, y, 0] = 1.0f;
-            }
-        }
-        
-        // Normalize the splatmap values to ensure they add up to 1.0 for each point
-        for (int i = 0; i < terrainData.alphamapLayers; i++)
-        {
-            float[,,] alphamap = terrainData.GetAlphamaps(0, 0, width, height);
-            for (int x = 0; x < width; x++)
-            {
-                for (int y = 0; y < height; y++)
-                {
-                    float total = alphamap[x, y, i] + splatmaps[x, y, 0];
-                    if (total > 1.0f)
-                    {
-                        alphamap[x, y, i] /= total;
-                        splatmaps[x, y, 0] /= total;
-                    }
-                }
-            }
-            terrainData.SetAlphamaps(0, 0, alphamap);
-        }
-        terrainData.SetAlphamaps(0, 0, splatmaps);
-
-        // Update the terrain object
-        _terrain.Flush();
+        Material mat = new Material(Shader.Find("Standard"));
+        mat.SetFloat("_Glossiness", 0.0f);
+        _terrain.materialTemplate = mat;
+        // Apply the texture to the terrain's material
+        _terrain.materialTemplate.mainTexture = texture;
     }
+
 }
