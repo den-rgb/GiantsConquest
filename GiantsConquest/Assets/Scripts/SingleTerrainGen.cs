@@ -4,6 +4,7 @@ using UnityEngine.AI;
 using System.Threading;
 //using System;
 using System.Threading.Tasks;
+using System.Linq;
 
 
 
@@ -16,7 +17,7 @@ public class SingleTerrainGen : MonoBehaviour
     public GameObject well;
     public GameObject giant;
     public GameObject villageHouse;
-    private MeshCollider terrainCollider;
+    private TerrainCollider terrainCollider;
     public float maxHeight;
     public float minHeight;
     public float maxSlope;
@@ -29,6 +30,19 @@ public class SingleTerrainGen : MonoBehaviour
     float[,] colourHeights;
     Texture2D texture;
     //////////////////////////////////////////
+    /// Painting Forestry
+    ///     
+    public GameObject[] treePrefabs;
+    public GameObject[] rockPrefabs;
+    public GameObject[] grassPrefabs;
+
+    public GameObject[] faunaPrefabs;
+
+    public int numberOfTrees = 10000;
+    public int numberOfRocks = 100;
+    public int numberOfFauna= 10000;
+    public float treePlacementRadius = 5f;
+    
     private List<SphereCollider> scList = new List<SphereCollider>();
     private List<List<Vector3>> pathList = new List<List<Vector3>>();
     public List<NavMeshAgent> agentList = new List<NavMeshAgent>();
@@ -44,10 +58,6 @@ public class SingleTerrainGen : MonoBehaviour
     public GameObject blue;
     public GameObject green;
     public LayerMask walkableLayer;
-
-    public List<GameObject> woodList = new List<GameObject>();
-    public List<GameObject> stoneList = new List<GameObject>();
-    public List<GameObject> grassList = new List<GameObject>();
     private List<Vector3> path = new List<Vector3>();
     // Create a list to hold the results of each thread
     //private List<IAsyncResult> results = new List<IAsyncResult>();
@@ -86,14 +96,17 @@ public class SingleTerrainGen : MonoBehaviour
         Mesh m = spawned.GetComponent<MeshCollider>().sharedMesh;
         m.RecalculateBounds();
 
-        GameObject mesh2Terrain = GameObject.Find("Mesh2Terrain");
+        GameObject mesh2Terrain = GameObject.Find("Mesh2Terrain"); 
         mesh2Terrain.GetComponent<Object2Terrain>().CreateTerrain(spawned);
         GameObject convertedTerrain = GameObject.Find("Terrain");
-        
+        Terrain t = convertedTerrain.GetComponent<Terrain>();
         gradient = GameObject.Find("Mesh2Terrain").GetComponent<TerrainColour>().gradient;
         float[,] noiseMap = spawned.GetComponent<MapGenerator>().noiseMap;
         convertedTerrain.AddComponent<TerrainColour>();
         convertedTerrain.GetComponent<TerrainColour>().DisplayTerrain(noiseMap, gradient, convertedTerrain.GetComponent<Terrain>());
+        Destroy(mesh2Terrain);
+        convertedTerrain.gameObject.layer = LayerMask.NameToLayer("Ground");
+    
 
         spawned.transform.DetachChildren();
         WaterGenerator waterScript = FindObjectOfType<WaterGenerator>();
@@ -115,108 +128,274 @@ public class SingleTerrainGen : MonoBehaviour
         /// center spawn 
         ///////////////////////////////////////////////////////////////////////////////////////////// 
 
-        terrainCollider = spawned.GetComponent<MeshCollider>();
-        int numberOfObjects = 10;
+        terrainCollider = convertedTerrain.GetComponent<TerrainCollider>();
         Vector3 terrainSize = spawned.GetComponentInChildren<MeshRenderer>().bounds.size;
-
+        int numberOfObjects = 10;
         
 
-        // for (int i = 0; i < numberOfObjects; i++)
-        // {
-        //     // Generate a UnityEngine.Random position within the terrain's bounds
-        //     Vector3 position = new Vector3(UnityEngine.Random.Range(0, terrainSize.x), 1000, UnityEngine.Random.Range(0, terrainSize.z));
-        //     if (Physics.Raycast(position, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground")) && (hit.point.y < maxHeight && hit.point.y > minHeight))
-        //     {
-        //         position.y = hit.point.y;
-        //         Quaternion rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
-        //         Vector3 euler = rotation.eulerAngles;
-        //         //converting euler angles to degrees
-        //         euler.x = (euler.x > 180) ? euler.x - 360 : euler.x;
-        //         euler.z = (euler.z > 180) ? euler.z - 360 : euler.z;
-        //         if (euler.x > minSlope && euler.x < maxSlope && euler.z > minSlope && euler.z < maxSlope)
-        //         {
-        //             // Spawn the object at the hit point
-        //             GameObject villageCenter = Instantiate(well, position, rotation);
-        //             agentPos.transform.position = villageCenter.transform.position;
-        //             agent = Instantiate(agentPos, position, rotation);
+        for (int i = 0; i < numberOfObjects; i++)
+        {
+            // Generate a UnityEngine.Random position within the terrain's bounds
+            Vector3 position = new Vector3(UnityEngine.Random.Range(0, terrainSize.x), 1000, UnityEngine.Random.Range(0, terrainSize.z));
+            if (Physics.Raycast(position, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground")) && (hit.point.y < maxHeight && hit.point.y > minHeight))
+            {
+                position.y = hit.point.y;
+                Quaternion rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
+                Vector3 euler = rotation.eulerAngles;
+                //converting euler angles to degrees
+                euler.x = (euler.x > 180) ? euler.x - 360 : euler.x;
+                euler.z = (euler.z > 180) ? euler.z - 360 : euler.z;
+                if (euler.x > minSlope && euler.x < maxSlope && euler.z > minSlope && euler.z < maxSlope)
+                {
+                    // Spawn the object at the hit point
+                    GameObject villageCenter = Instantiate(well, position, rotation);
+                    agentPos.transform.position = villageCenter.transform.position;
+                    agent = Instantiate(agentPos, position, rotation);
 
-        //             villageCenter.name = "Well" + scList.Count.ToString();
-        //             SphereCollider villageCenterCollider = villageCenter.AddComponent<SphereCollider>();
-        //             villageCenterCollider.radius = 200f;
-        //             villageCenterCollider.isTrigger = true;
-        //             scList.Add(villageCenterCollider);
+                    villageCenter.name = "Well" + scList.Count.ToString();
+                    SphereCollider villageCenterCollider = villageCenter.AddComponent<SphereCollider>();
+                    villageCenterCollider.radius = 200f;
+                    villageCenterCollider.isTrigger = true;
+                    scList.Add(villageCenterCollider);
 
-        //             agentList.Add(agent.GetComponent<NavMeshAgent>());
-        //         }
-        //         else
-        //         {
-        //             numberOfObjects++;
-        //         }
-        //     }
-        //     else
-        //     {
-        //         numberOfObjects++;
-        //     }
-        // }
+                    agentList.Add(agent.GetComponent<NavMeshAgent>());
+                }
+                else
+                {
+                    numberOfObjects++;
+                }
+            }
+            else
+            {
+                numberOfObjects++;
+            }
+        }
 
-        // for(int i =1; i<agentList.Count; i++){
-        //     generatePath(agentList[0], agentList[i].transform.position);
-        // }
+        for(int i =1; i<agentList.Count; i++){
+            generatePath(agentList[0], agentList[i].transform.position);
+        }
 
-        // int giantCount = 1;
-        // for (int i = 0; i < giantCount; i++)
-        // {
-        //     Vector3 giantSpawn = new Vector3(UnityEngine.Random.Range(0, terrainSize.x), 1000, UnityEngine.Random.Range(0, terrainSize.z));
-        //     if (Physics.Raycast(giantSpawn, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground")) && (hit.point.y < maxHeight && hit.point.y > minHeight))
-        //     {
-        //         giantSpawn.y = hit.point.y + 10f;
-        //         Quaternion rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
-        //         Vector3 euler = rotation.eulerAngles;
-        //             //converting euler angles to degrees
-        //         euler.x = (euler.x > 180) ? euler.x - 360 : euler.x;
-        //         euler.z = (euler.z > 180) ? euler.z - 360 : euler.z;
-        //         if (euler.x > minSlope && euler.x < maxSlope && euler.z > minSlope && euler.z < maxSlope)
-        //             {
-        //                 Instantiate(giant, giantSpawn, rotation);
-        //             }else{
-        //                 giantCount++;
-        //             }
-        //     }else{
-        //         giantCount++;
-        //     }
-        // }
-
-        // // Generating Breakbles
-        // int numWood = 10000;
-        // int numStone = 10000;
-        // int numGrass = 100000;
+        int giantCount = 1;
+        for (int i = 0; i < giantCount; i++)
+        {
+            Vector3 giantSpawn = new Vector3(UnityEngine.Random.Range(0, terrainSize.x), 1000, UnityEngine.Random.Range(0, terrainSize.z));
+            if (Physics.Raycast(giantSpawn, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground")) && (hit.point.y < maxHeight && hit.point.y > minHeight))
+            {
+                giantSpawn.y = hit.point.y + 10f;
+                Quaternion rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
+                Vector3 euler = rotation.eulerAngles;
+                    //converting euler angles to degrees
+                euler.x = (euler.x > 180) ? euler.x - 360 : euler.x;
+                euler.z = (euler.z > 180) ? euler.z - 360 : euler.z;
+                if (euler.x > minSlope && euler.x < maxSlope && euler.z > minSlope && euler.z < maxSlope)
+                    {
+                        Instantiate(giant, giantSpawn, rotation);
+                    }else{
+                        giantCount++;
+                    }
+            }else{
+                giantCount++;
+            }
+        }
         
-
-        // Start a thread for each object type
-
-
-        //SpawnBreakableObjects("Wood", numWood, woodList, minSlope, maxSlope, terrainSize, maxHeight, minHeight);
-        //SpawnBreakableObjects("Stone", numStone, stoneList, minSlope, maxSlope, terrainSize, maxHeight, minHeight);
-        //SpawnBreakableObjects("Grass", numGrass, grassList, minSlope, maxSlope, terrainSize, maxHeight, minHeight);
-
-        
-
-
-
-
-
-        
-
 
     //     // /////////////////////////////////////////////////////////////////////////////////////////
     //     // // surrounding houses spawn
     //     // /////////////////////////////////////////////////////////////////////////////////////////
-    //     spawnSurroundingObjects(50, 1, villageHouse);
+            spawnSurroundingObjects(50, 1, villageHouse);
+
+            // /////////////////////////////////////////////////////////////////////////////////////////
+        /// Mass Place Trees
+        /// /////////////////////////////////////////////////////////////////////////////////////////
+        TreePrototype[] treePrototypes = new TreePrototype[treePrefabs.Length];
+        // Iterate over each tree prefab
+        for (int i = 0; i < treePrefabs.Length; i++)
+        {
+            // Create a new TreePrototype object
+            TreePrototype treePrototype = new TreePrototype();
+            // Assign the tree prefab to the prefab property of the TreePrototype
+            treePrototype.prefab = treePrefabs[i];
+            // Assign the TreePrototype to an element of the treePrototypes array
+            treePrototypes[i] = treePrototype;
+        }
+        // Assign the treePrototypes array to the terrainData's treePrototypes property
+        t.terrainData.treePrototypes = treePrototypes;
+        // Refresh the terrain's tree instances
+        t.terrainData.RefreshPrototypes();
 
 
-    //     // /////////////////////////////////////////////////////////////////////////////////////////
-    //     // // Generate path
-    //     // /////////////////////////////////////////////////////////////////////////////////////////
+
+        TreeInstance[] trees = new TreeInstance[numberOfTrees+ numberOfFauna];
+        for (int i = 0; i < numberOfTrees + numberOfFauna; i++)
+        {
+            // Generate a random normalized position for the tree instance
+            float x = Random.Range(0f, 1f);
+            float z = Random.Range(0f, 1f);
+            // Convert the normalized position to a world space position
+            Vector3 worldSpacePosition = new Vector3(x * t.terrainData.size.x, 0, z * t.terrainData.size.z) + t.transform.position;
+            // Calculate the y position of the tree instance using the SampleHeight method
+            float y = t.SampleHeight(worldSpacePosition);
+            //rocks
+            if(i<=200){
+                if (y >= minHeight && y <= maxHeight)
+                {
+                        // Convert the world space position to a normalized position
+                        Vector3 normalizedPosition = new Vector3(x, y / t.terrainData.size.y, z);
+                        // Create a new TreeInstance object
+                        TreeInstance treeInstance = new TreeInstance();
+                        // Assign a random prototypeIndex to the tree instance
+                        treeInstance.prototypeIndex = Random.Range(7,9);
+                        // Assign the normalized position to the tree instance
+                        treeInstance.position = normalizedPosition;
+                        // Set the widthScale and heightScale of the tree instance
+                        int random = Random.Range(3,5);
+                        treeInstance.widthScale = random;
+                        treeInstance.heightScale = random;
+                        // Set the color and lightmapColor of the tree instance
+                        treeInstance.color = Color.white;
+                        treeInstance.lightmapColor = Color.white;
+                        treeInstance.rotation = Random.Range(0f, 360f);
+                        trees[i] = treeInstance;
+                }else i--;
+            }
+            //stones
+            else if(i<1200 && i>200){
+                if (y >= minHeight && y <= maxHeight)
+                {
+                        // Convert the world space position to a normalized position
+                        Vector3 normalizedPosition = new Vector3(x, y / t.terrainData.size.y, z);
+                        // Create a new TreeInstance object
+                        TreeInstance treeInstance = new TreeInstance();
+                        // Assign a random prototypeIndex to the tree instance
+                        treeInstance.prototypeIndex = Random.Range(9,18);
+                        // Assign the normalized position to the tree instance
+                        treeInstance.position = normalizedPosition;
+                        // Set the widthScale and heightScale of the tree instance
+                        int random = Random.Range(5,10);
+                        treeInstance.widthScale = random;
+                        treeInstance.heightScale = random;
+                        // Set the color and lightmapColor of the tree instance
+                        treeInstance.color = Color.white;
+                        treeInstance.lightmapColor = Color.white;
+                        treeInstance.rotation = Random.Range(0f, 360f);
+                        trees[i] = treeInstance;
+                }else i--;
+            }
+            else if(i<=numberOfTrees && i>1200){
+                //trees
+                if (y >= minHeight && y <= maxHeight)
+                {
+                        // Convert the world space position to a normalized position
+                        Vector3 normalizedPosition = new Vector3(x, y / t.terrainData.size.y, z);
+                        // Create a new TreeInstance object
+                        TreeInstance treeInstance = new TreeInstance();
+                        // Assign a random prototypeIndex to the tree instance
+                        float randomTree = Random.Range(0f, 1f);
+                        if(randomTree<=0.05f){
+                            treeInstance.prototypeIndex = 6;
+                        }else{
+                            treeInstance.prototypeIndex = Random.Range(0, 5);
+                        }
+                        // Assign the normalized position to the tree instance
+                        treeInstance.position = normalizedPosition;
+                        // Set the widthScale and heightScale of the tree instance
+                        int random = Random.Range(3,5);
+                        treeInstance.widthScale = random;
+                        treeInstance.heightScale = random;
+                        // Set the color and lightmapColor of the tree instance
+                        treeInstance.color = Color.white;
+                        treeInstance.lightmapColor = Color.white;
+                        treeInstance.rotation = Random.Range(0f, 360f);
+                        trees[i] = treeInstance;
+                }else i--;
+            }else{
+                // if (y >= minHeight && y <= 700)
+                // {
+                //         // Convert the world space position to a normalized position
+                //         Vector3 normalizedPosition = new Vector3(x, y / t.terrainData.size.y, z);
+                //         // Create a new TreeInstance object
+                //         TreeInstance treeInstance = new TreeInstance();
+                //         // Assign a random prototypeIndex to the tree instance
+                        
+                //         treeInstance.prototypeIndex = 19;
+                    
+                //         // Assign the normalized position to the tree instance
+                //         treeInstance.position = normalizedPosition;
+                //         // Set the widthScale and heightScale of the tree instance
+                //         int random = Random.Range(100,101);
+                //         treeInstance.widthScale = 1;
+                //         treeInstance.heightScale = 1;
+                //         // Set the color and lightmapColor of the tree instance
+                //         treeInstance.color = Color.white;
+                //         treeInstance.lightmapColor = Color.white;
+                //         treeInstance.rotation = Random.Range(0f, 360f);
+                //         trees[i] = treeInstance;
+                // }else i--;
+            }
+        }
+        t.terrainData.treeInstances = trees;
+
+
+        // /////////////////////////////////////////////////////////////////////////////////////////
+        /// Mass Place Grass
+        /// /////////////////////////////////////////////////////////////////////////////////////////
+        
+        // Create an array to hold the DetailPrototype objects
+        DetailPrototype[] detailPrototypes = new DetailPrototype[grassPrefabs.Length];
+
+        // Iterate over each grass prefab
+        for (int i = 0; i < grassPrefabs.Length; i++)
+        {
+            // Create a new DetailPrototype object
+            DetailPrototype detailPrototype = new DetailPrototype();
+            // Assign the grass prefab to the prototype property of the DetailPrototype
+            detailPrototype.useInstancing = true;
+            detailPrototype.prototype = grassPrefabs[i];
+            detailPrototype.usePrototypeMesh = true;
+            
+            // Set other properties of the DetailPrototype (such as render mode, min/max width/height, etc.)
+            detailPrototype.renderMode = DetailRenderMode.VertexLit;
+            detailPrototype.minWidth = 10f;
+            detailPrototype.maxWidth = 20f;
+            detailPrototype.minHeight = 10f;
+            detailPrototype.maxHeight = 20f;
+            detailPrototype.noiseSpread = 0.5f;
+            detailPrototype.noiseSeed = 693192397;
+            // Assign the DetailPrototype to an element of the detailPrototypes array
+            detailPrototypes[i] = detailPrototype;
+        }
+
+        // Assign the detailPrototypes array to the terrainData's detailPrototypes property
+        t.terrainData.detailPrototypes = detailPrototypes;
+        t.terrainData.RefreshPrototypes();
+        t.terrainData.SetDetailResolution(2048, 32);
+        // Create a 2D array to hold the detail densities
+        var map = t.terrainData.GetDetailLayer(0, 0, t.terrainData.detailWidth, t.terrainData.detailHeight, 0);
+        var map2 = t.terrainData.GetDetailLayer(0, 0, t.terrainData.detailWidth, t.terrainData.detailHeight, 0);
+
+        // Set the density of the detail objects
+        for (int y = 0; y < t.terrainData.detailHeight; y++)
+        {
+            for (int x = 0; x < t.terrainData.detailWidth; x++)
+            {
+                float h = t.terrainData.GetInterpolatedHeight((float)x / t.terrainData.detailWidth, (float)y / t.terrainData.detailHeight);
+
+                if (h > minHeight && h < 700)
+                {
+                    map[y, x] = 105; 
+                    map2[y, x] = 105;// second type of grass
+                }
+            }
+        }
+
+        // Assign the detail layer to the terrain data
+        t.terrainData.SetDetailLayer(0, 0, 0, map);
+        t.terrainData.SetDetailLayer(0, 0, 1, map2);
+
+
+    // //     // /////////////////////////////////////////////////////////////////////////////////////////
+    // //     // // Generate path
+    // //     // /////////////////////////////////////////////////////////////////////////////////////////
     //     for (int s = 0; s < pathList.Count; s++)
     //     {
     //         Vector3 startPos = new Vector3(scList[s].bounds.center.x, scList[s].bounds.center.y + 100, scList[s].bounds.center.z);
@@ -262,85 +441,101 @@ public class SingleTerrainGen : MonoBehaviour
     //             }
     //         }
     //     }
-    // }
-
-
-
-    // public void spawnSurroundingObjects(float minDistance, float radiusChange, GameObject prefab)
-    // {
-    //     for (int j = 0; j < scList.Count; j++)
-    //     {
-    //         int spawned = 0;
-    //         int iterations = 0;
-    //         int count = UnityEngine.Random.Range(3,7);
-    //         pathIteration = new List<Vector3>();
-    //         while (spawned < count && iterations < 1000)
-    //         {
-    //             Vector3 RandomPos = scList[j].bounds.center + UnityEngine.Random.insideUnitSphere * (scList[j].radius / radiusChange);
-    //             RandomPos.y = 1000f;
-    //             if (Physics.Raycast(RandomPos, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground")) && (hit.point.y < maxHeight && hit.point.y > minHeight))
-    //             {
-    //                 int raycastCount = 360;
-    //                 float angleStep = 360f / raycastCount;
-    //                 Vector3 centeObj = prefab.transform.localScale / 2f;
-    //                 Vector3 instantiationPoint = RandomPos + centeObj;
-    //                 instantiationPoint.y = hit.point.y;
-    //                 Vector3 center = scList[j].bounds.center;
-    //                 Vector3 newCenter = new Vector3(center.x, instantiationPoint.y, center.z);
-    //                 Vector3 direction = newCenter - instantiationPoint;
-    //                 direction = -direction;
-    //                 Quaternion rotationCenter = Quaternion.LookRotation(direction, Vector3.up);
-    //                 Quaternion rotationNormal = Quaternion.FromToRotation(Vector3.up, hit.normal); //possibly needed changing due to hit.normal not being the same hit point as instantiationPoint
-    //                 Quaternion finalRotation = rotationNormal * rotationCenter;
-
-    //                 //Check if too close too height change
-    //                 Vector3 checkSurround = new Vector3(instantiationPoint.x, instantiationPoint.y + 6.5f, instantiationPoint.z);
-    //                 for (int i = 0; i < raycastCount; i++)
-    //                 {
-    //                     float angle = i * angleStep;
-    //                     Vector3 checkDirection = Quaternion.Euler(0, angle, 0) * Vector3.right;
-    //                     if (Physics.Raycast(checkSurround, checkDirection, out hit, 20f, LayerMask.GetMask("Ground"))) continue;
-
-    //                 }
-                    
-    //                 // Check if any houses are in the way
-    //                 float distanceToWell = Vector3.Distance(center, checkSurround);
-    //                 Vector3 difference = center - checkSurround;
-    //                 Vector3 toCenter = difference.normalized;
-    //                 if (Physics.Raycast(checkSurround, toCenter, out hit, distanceToWell - 5f, LayerMask.GetMask("House"))) continue;
-
-    //                 Vector3 euler = finalRotation.eulerAngles;
-    //                 euler.x = (euler.x > 180) ? euler.x - 360 : euler.x;
-    //                 euler.z = (euler.z > 180) ? euler.z - 360 : euler.z;
-    //                 if (euler.x > minSlope && euler.x < maxSlope && euler.z > minSlope && euler.z < maxSlope)
-    //                 {
-    //                     instantiationPoint = new Vector3(instantiationPoint.x, instantiationPoint.y - 1.5f, instantiationPoint.z);
-    //                     Collider[] surroundingColliders = Physics.OverlapSphere(instantiationPoint, 50f, LayerMask.GetMask("House"));
-    //                     //print(scList[j]+" "+surroundingColliders.Length + surroundingColliders[0].name);
-    //                     if (surroundingColliders.Length == 0)
-    //                     {
-    //                         float distance = Vector3.Distance(instantiationPoint, center);
-    //                         if (distance >= minDistance)
-    //                         {
-    //                             //print("---------" + instantiationPoint + " " + UnityEngine.RandomPos);
-    //                             GameObject spawnedObj = Instantiate(prefab, instantiationPoint, finalRotation);
-    //                             spawnedObj.name = "House " + j.ToString() + spawned.ToString();
-    //                             spawnedObj.AddComponent<SphereCollider>();
-    //                             spawnedObj.GetComponent<SphereCollider>().radius = 50f;
-    //                             spawnedObj.GetComponent<SphereCollider>().isTrigger = true;
-    //                             pathIteration.Add(instantiationPoint);
-    //                             spawned++;
-    //                             if (spawned == count) pathList.Add(pathIteration);
-    //                         }
-    //                     }
-    //                 }
-    //             }
-    //             iterations++;
-    //         }
-    //     }
     }
 
-    
+
+
+    public void spawnSurroundingObjects(float minDistance, float radiusChange, GameObject prefab)
+    {
+        for (int j = 0; j < scList.Count; j++)
+        {
+            int spawned = 0;
+            int iterations = 0;
+            int count = UnityEngine.Random.Range(3,7);
+            pathIteration = new List<Vector3>();
+            while (spawned < count && iterations < 1000)
+            {
+                Vector3 RandomPos = scList[j].bounds.center + UnityEngine.Random.insideUnitSphere * (scList[j].radius / radiusChange);
+                RandomPos.y = 1000f;
+                if (Physics.Raycast(RandomPos, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground")) && (hit.point.y < maxHeight && hit.point.y > minHeight))
+                {
+                    int raycastCount = 360;
+                    float angleStep = 360f / raycastCount;
+                    Vector3 centeObj = prefab.transform.localScale / 2f;
+                    Vector3 instantiationPoint = RandomPos + centeObj;
+                    instantiationPoint.y = hit.point.y;
+                    Vector3 center = scList[j].bounds.center;
+                    Vector3 newCenter = new Vector3(center.x, instantiationPoint.y, center.z);
+                    Vector3 direction = newCenter - instantiationPoint;
+                    direction = -direction;
+                    Quaternion rotationCenter = Quaternion.LookRotation(direction, Vector3.up);
+                    Quaternion rotationNormal = Quaternion.FromToRotation(Vector3.up, hit.normal); //possibly needed changing due to hit.normal not being the same hit point as instantiationPoint
+                    Quaternion finalRotation = rotationNormal * rotationCenter;
+
+                    //Check if too close too height change
+                    Vector3 checkSurround = new Vector3(instantiationPoint.x, instantiationPoint.y + 6.5f, instantiationPoint.z);
+                    for (int i = 0; i < raycastCount; i++)
+                    {
+                        float angle = i * angleStep;
+                        Vector3 checkDirection = Quaternion.Euler(0, angle, 0) * Vector3.right;
+                        if (Physics.Raycast(checkSurround, checkDirection, out hit, 20f, LayerMask.GetMask("Ground"))) continue;
+
+                    }
+                    
+                    // Check if any houses are in the way
+                    float distanceToWell = Vector3.Distance(center, checkSurround);
+                    Vector3 difference = center - checkSurround;
+                    Vector3 toCenter = difference.normalized;
+                    if (Physics.Raycast(checkSurround, toCenter, out hit, distanceToWell - 5f, LayerMask.GetMask("House"))) continue;
+
+                    Vector3 euler = finalRotation.eulerAngles;
+                    euler.x = (euler.x > 180) ? euler.x - 360 : euler.x;
+                    euler.z = (euler.z > 180) ? euler.z - 360 : euler.z;
+                    if (euler.x > minSlope && euler.x < maxSlope && euler.z > minSlope && euler.z < maxSlope)
+                    {
+                        instantiationPoint = new Vector3(instantiationPoint.x, instantiationPoint.y - 1.5f, instantiationPoint.z);
+                        Collider[] surroundingColliders = Physics.OverlapSphere(instantiationPoint, 50f, LayerMask.GetMask("House"));
+                        //print(scList[j]+" "+surroundingColliders.Length + surroundingColliders[0].name);
+                        if (surroundingColliders.Length == 0)
+                        {
+                            float distance = Vector3.Distance(instantiationPoint, center);
+                            if (distance >= minDistance)
+                            {
+                                //print("---------" + instantiationPoint + " " + UnityEngine.RandomPos);
+                                GameObject spawnedObj = Instantiate(prefab, instantiationPoint, finalRotation);
+                                spawnedObj.name = "House " + j.ToString() + spawned.ToString();
+                                spawnedObj.AddComponent<SphereCollider>();
+                                spawnedObj.GetComponent<SphereCollider>().radius = 50f;
+                                spawnedObj.GetComponent<SphereCollider>().isTrigger = true;
+                                pathIteration.Add(instantiationPoint);
+                                spawned++;
+                                if (spawned == count) pathList.Add(pathIteration);
+                            }
+                        }
+                    }
+                }
+                iterations++;
+            }
+        }
+    }
+
+    int GetRandomIndex(GameObject[] array, int index)
+    {
+        float value = Random.value;
+        if(index == 0){
+        if (value < 0.666f)
+            return Random.Range(0,1);
+        else
+            return Random.Range(2, array.Length);
+        }
+        else if(index == 1){
+            if (value < 0.666f)
+            return Random.Range(7,9);
+        else
+            return Random.Range(9, array.Length + 7);
+        }
+        return 0;
+    }
 
     private Vector3 CalculateBezierPoint(float t, List<Vector3> points)
     {
@@ -359,8 +554,6 @@ public class SingleTerrainGen : MonoBehaviour
 
         return CalculateBezierPoint(t, newPoints);
     }
-
-
 
     public void generatePath(NavMeshAgent startAgent, Vector3 end)
     {
