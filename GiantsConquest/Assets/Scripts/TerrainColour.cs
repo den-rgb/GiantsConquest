@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(Terrain))]
 public class TerrainColour : MonoBehaviour
 {
     public Material material;
@@ -52,7 +51,7 @@ public class TerrainColour : MonoBehaviour
 
 
 
-   public void DisplayTerrain(float[,] noiseMap, Gradient gradient, Terrain _terrain)
+   public Texture2D DisplayTerrain(float[,] noiseMap, Gradient gradient, Terrain _terrain)
     {
         Color[] colourMap = GenerateColors(noiseMap, gradient);
 
@@ -67,11 +66,12 @@ public class TerrainColour : MonoBehaviour
         }
         texture.Apply();
 
-        Material mat = new Material(Shader.Find("Standard"));
-        mat.SetFloat("_Glossiness", 0.0f);
-        _terrain.materialTemplate = mat;
-        // Apply the texture to the terrain's material
-        _terrain.materialTemplate.mainTexture = texture;
-    }
+        // Material mat = new Material(Shader.Find("Standard"));
+        // mat.SetFloat("_Glossiness", 0.0f);
+        // _terrain.materialTemplate = mat;
+        // // Apply the texture to the terrain's material
+        // _terrain.materialTemplate.mainTexture = texture;
+        return texture;
+   }
 
 }

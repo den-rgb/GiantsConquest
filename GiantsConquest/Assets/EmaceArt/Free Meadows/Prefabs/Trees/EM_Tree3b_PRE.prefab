@@ -16,7 +16,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &4809717190196526517
 Transform:
@@ -94,12 +94,13 @@ GameObject:
   - component: {fileID: 5224366525265110282}
   - component: {fileID: 1070363598566511227}
   - component: {fileID: 2736800002699041149}
+  - component: {fileID: 4136682552738437931}
   m_Layer: 6
   m_Name: EM_Tree3b_PRE
-  m_TagString: Untagged
+  m_TagString: terrainObjects
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &5224366525265110282
 Transform:
@@ -159,6 +160,24 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 1.8563344
   m_Center: {x: 0, y: 1.3563344, z: 0}
+--- !u!114 &4136682552738437931
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4885135661250527152}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be4a718f140294633884839cce272667, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Static: 0
+  Occludee: 1
+  Lod1: 0
+  Lod2: 0
+  LodMargin: 0
+  LodOnly: 0
 --- !u!1 &5407734876651583205
 GameObject:
   m_ObjectHideFlags: 0
@@ -176,7 +195,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &3484586852244508844
 Transform:
@@ -273,7 +292,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!4 &7007703057161526394
 Transform:

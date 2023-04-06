@@ -1,3 +1,4 @@
+
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
@@ -5,6 +6,7 @@ using System.Threading;
 //using System;
 using System.Threading.Tasks;
 using System.Linq;
+using UnityEditor;
 
 
 
@@ -38,7 +40,7 @@ public class SingleTerrainGen : MonoBehaviour
 
     public GameObject[] faunaPrefabs;
 
-    public int numberOfTrees = 10000;
+    public int numberOfTrees = 20;
     public int numberOfRocks = 100;
     public int numberOfFauna= 10000;
     public float treePlacementRadius = 5f;
@@ -67,6 +69,13 @@ public class SingleTerrainGen : MonoBehaviour
     public List<GameObject> InstantiatedPath = new List<GameObject>();
     public List<List<GameObject>> InstantiatedListOfPaths = new List<List<GameObject>>();
 
+    // Occlusion Culling
+
+    private GameObject occlusionCulling;
+
+    // chunks
+
+    
     public void Start()
     {
 
@@ -97,83 +106,284 @@ public class SingleTerrainGen : MonoBehaviour
         m.RecalculateBounds();
 
         GameObject mesh2Terrain = GameObject.Find("Mesh2Terrain"); 
+        
+
         mesh2Terrain.GetComponent<Object2Terrain>().CreateTerrain(spawned);
-        GameObject convertedTerrain = GameObject.Find("Terrain");
-        Terrain t = convertedTerrain.GetComponent<Terrain>();
+        GameObject convertedTerrain = GameObject.Find("Terrain0");
+        convertedTerrain.transform.position = new Vector3(1900, 0, 1500);
         gradient = GameObject.Find("Mesh2Terrain").GetComponent<TerrainColour>().gradient;
         float[,] noiseMap = spawned.GetComponent<MapGenerator>().noiseMap;
         convertedTerrain.AddComponent<TerrainColour>();
-        convertedTerrain.GetComponent<TerrainColour>().DisplayTerrain(noiseMap, gradient, convertedTerrain.GetComponent<Terrain>());
-        Destroy(mesh2Terrain);
-        convertedTerrain.gameObject.layer = LayerMask.NameToLayer("Ground");
-    
+        Vector3 terrainSize = convertedTerrain.GetComponent<Terrain>().terrainData.size;
+        Texture2D mapTexture = convertedTerrain.GetComponent<TerrainColour>().DisplayTerrain(noiseMap, gradient, convertedTerrain.GetComponent<Terrain>());
+        
+        mesh2Terrain.GetComponent<Object2Terrain>().CreateTerrainChunks(spawned, mapTexture);
+        GameObject[] chunks = new GameObject[20];
+        
+        for (int i = 0; i<20; i++){
+            GameObject chunk = GameObject.Find("Chunk" + i);
+            Terrain t = chunk.GetComponent<Terrain>();
+            gradient = GameObject.Find("Mesh2Terrain").GetComponent<TerrainColour>().gradient;
+            chunk.gameObject.layer = LayerMask.NameToLayer("Ground");
+            chunk.isStatic = false;
+            chunk.gameObject.tag = "Chunk";
 
+            chunk.AddComponent<NavMeshSurface>();
+            NavMeshSurface navMeshSurface = chunk.GetComponent<NavMeshSurface>();
+            navMeshSurface.overrideTileSize = true;
+            navMeshSurface.tileSize = 125;
+            navMeshSurface.overrideVoxelSize = true;
+            navMeshSurface.voxelSize = 5;
+            NavMeshBuildSettings buildSettings = navMeshSurface.GetBuildSettings();
+            buildSettings.agentSlope = 25;
+            navMeshSurface.BuildNavMesh();
+
+            TreePrototype[] treePrototypes = new TreePrototype[treePrefabs.Length];
+            // Iterate over each tree prefab
+            for (int k= 0; k < treePrefabs.Length; k++)
+            {
+                // Create a new TreePrototype object
+                TreePrototype treePrototype = new TreePrototype();
+                // Assign the tree prefab to the prefab property of the TreePrototype
+                treePrototype.prefab = treePrefabs[k];
+                // Assign the TreePrototype to an element of the treePrototypes array
+                treePrototypes[k] = treePrototype;
+            }
+            // Assign the treePrototypes array to the terrainData's treePrototypes property
+            t.terrainData.treePrototypes = treePrototypes;
+            // Refresh the terrain's tree instances
+            t.terrainData.RefreshPrototypes();
+
+            int iterations = 1000;
+
+            TreeInstance[] trees = new TreeInstance[numberOfTrees];
+            for (int l = 0; l < numberOfTrees; l++)
+            {
+                // Generate a random normalized position for the tree instance
+                float x = Random.Range(0f, 1f);
+                float z = Random.Range(0f, 1f);
+                // Convert the normalized position to a world space position
+                Vector3 worldSpacePosition = new Vector3(x * t.terrainData.size.x, 0, z * t.terrainData.size.z) + t.transform.position;
+                // Calculate the y position of the tree instance using the SampleHeight method
+                float y = t.SampleHeight(worldSpacePosition);
+                //rocks
+                if(l<=3 && iterations > 0){
+                    if (y >= 100 && y <= 400)
+                    {
+                            // Convert the world space position to a normalized position
+                            Vector3 normalizedPosition = new Vector3(x, y / t.terrainData.size.y, z);
+                            // Create a new TreeInstance object
+                            TreeInstance treeInstance = new TreeInstance();
+                            // Assign a random prototypeIndex to the tree instance
+                            treeInstance.prototypeIndex = Random.Range(7,9);
+                            // Assign the normalized position to the tree instance
+                            treeInstance.position = normalizedPosition;
+                            // Set the widthScale and heightScale of the tree instance
+                            int random = Random.Range(3,5);
+                            treeInstance.widthScale = random;
+                            treeInstance.heightScale = random;
+                            // Set the color and lightmapColor of the tree instance
+                            treeInstance.color = Color.white;
+                            treeInstance.lightmapColor = Color.white;
+                            treeInstance.rotation = Random.Range(0f, 360f);
+                            trees[l] = treeInstance;
+                    }else {
+                        l--;
+                        iterations--;
+                    }
+                }
+                //stones
+                else if(l<10 && l>3 && iterations > 0){
+                    
+                    if (y >= 100 && y <= 200)
+                    {
+                            // Convert the world space position to a normalized position
+                            Vector3 normalizedPosition = new Vector3(x, y / t.terrainData.size.y, z);
+                            // Create a new TreeInstance object
+                            TreeInstance treeInstance = new TreeInstance();
+                            // Assign a random prototypeIndex to the tree instance
+                            treeInstance.prototypeIndex = Random.Range(9,18);
+                            // Assign the normalized position to the tree instance
+                            treeInstance.position = normalizedPosition;
+                            // Set the widthScale and heightScale of the tree instance
+                            int random = Random.Range(5,10);
+                            treeInstance.widthScale = random;
+                            treeInstance.heightScale = random;
+                            // Set the color and lightmapColor of the tree instance
+                            treeInstance.color = Color.white;
+                            treeInstance.lightmapColor = Color.white;
+                            treeInstance.rotation = Random.Range(0f, 360f);
+                            trees[l] = treeInstance;
+                    }else {
+                        l--;
+                        iterations--;
+                    }
+                }
+                else if(l<=numberOfTrees && l>10 && iterations > 0){
+                    //trees
+                    if (y >= 150 && y <= 400)
+                    {
+                            // Convert the world space position to a normalized position
+                            Vector3 normalizedPosition = new Vector3(x, y / t.terrainData.size.y, z);
+                            // Create a new TreeInstance object
+                            TreeInstance treeInstance = new TreeInstance();
+                            // Assign a random prototypeIndex to the tree instance
+                            float randomTree = Random.Range(0f, 1f);
+                            if(randomTree<=0.05f){
+                                treeInstance.prototypeIndex = 6;
+                            }else{
+                                treeInstance.prototypeIndex = Random.Range(0, 5);
+                            }
+                            // Assign the normalized position to the tree instance
+                            treeInstance.position = normalizedPosition;
+                            // Set the widthScale and heightScale of the tree instance
+                            int random = Random.Range(3,5);
+                            treeInstance.widthScale = random;
+                            treeInstance.heightScale = random;
+                            // Set the color and lightmapColor of the tree instance
+                            treeInstance.color = Color.white;
+                            treeInstance.lightmapColor = Color.white;
+                            treeInstance.rotation = Random.Range(0f, 360f);
+                            trees[l] = treeInstance;
+                    }else {
+                        l--;
+                        iterations--;
+                    }
+                }
+            }
+            t.terrainData.treeInstances = trees;
+
+
+            // /////////////////////////////////////////////////////////////////////////////////////////
+            /// Mass Place Grass
+            /// /////////////////////////////////////////////////////////////////////////////////////////
+            
+            //Create an array to hold the DetailPrototype objects
+            DetailPrototype[] detailPrototypes = new DetailPrototype[grassPrefabs.Length];
+
+            // Iterate over each grass prefab
+            for (int g = 0; g < grassPrefabs.Length; g++)
+            {
+                // Create a new DetailPrototype object
+                DetailPrototype detailPrototype = new DetailPrototype();
+                // Assign the grass prefab to the prototype property of the DetailPrototype
+                detailPrototype.useInstancing = true;
+                detailPrototype.prototype = grassPrefabs[g];
+                detailPrototype.usePrototypeMesh = true;
+                
+                // Set other properties of the DetailPrototype (such as render mode, min/max width/height, etc.)
+                detailPrototype.renderMode = DetailRenderMode.VertexLit;
+                detailPrototype.minWidth = 10f;
+                detailPrototype.maxWidth = 20f;
+                detailPrototype.minHeight = 10f;
+                detailPrototype.maxHeight = 20f;
+                detailPrototype.noiseSpread = 0.5f;
+                detailPrototype.noiseSeed = 69420;
+                // Assign the DetailPrototype to an element of the detailPrototypes array
+                detailPrototypes[g] = detailPrototype;
+            }
+
+            // Assign the detailPrototypes array to the terrainData's detailPrototypes property
+            t.terrainData.detailPrototypes = detailPrototypes;
+            t.terrainData.RefreshPrototypes();
+            t.terrainData.SetDetailResolution(1024, 32);
+            // Create a 2D array to hold the detail densities
+            var map = t.terrainData.GetDetailLayer(0, 0, t.terrainData.detailWidth, t.terrainData.detailHeight, 0);
+            var map2 = t.terrainData.GetDetailLayer(0, 0, t.terrainData.detailWidth, t.terrainData.detailHeight, 1);
+
+            // Set the density of the detail objects
+            for (int y = 0; y < t.terrainData.detailHeight; y++)
+            {
+                for (int x = 0; x < t.terrainData.detailWidth; x++)
+                {
+                    float h = t.terrainData.GetInterpolatedHeight((float)x / t.terrainData.detailWidth, (float)y / t.terrainData.detailHeight);
+
+                    if (h > 130 && h < 500)
+                    {
+                        map[y, x] = 4; 
+                        map2[y, x] = 4;// second type of grass
+                    }
+                }
+            }
+
+            // Assign the detail layer to the terrain data
+            t.terrainData.SetDetailLayer(0, 0, 0, map);
+            t.terrainData.SetDetailLayer(0, 0, 1, map2);
+            t.treeDistance = 1000;
+            t.detailObjectDistance = 100;
+
+            OcclusionArea occlusionArea = chunk.AddComponent<OcclusionArea>();
+            Terrain terrain = chunk.GetComponent<Terrain>();
+            Vector3 terrainS = terrain.terrainData.bounds.size;
+            occlusionArea.size = new Vector3(terrainS.x, 1000, terrainS.z);
+            occlusionArea.center = new Vector3(terrainS.x/2, 0, terrainS.z/2);
+            
+            
+            chunks.Append(chunk);
+        }
+
+
+        print(chunks.Length + " chunks");
+        Destroy(convertedTerrain);
+        Destroy(mesh2Terrain);
         spawned.transform.DetachChildren();
         WaterGenerator waterScript = FindObjectOfType<WaterGenerator>();
         GameObject water = waterScript.gameObject;
-        water.transform.position = new Vector3(0, -150, 0);
+        water.transform.position = new Vector3(1900, -50, 1500);
         Destroy(spawned);
 
-        // /////////////////////////////////////////////////////////////////////////////////////////
-        /// NavMesh
-        //// /////////////////////////////////////////////////////////////////////////////////////////
-        navMeshSurface = convertedTerrain.AddComponent<NavMeshSurface>();
-        navMeshSurface.overrideVoxelSize = true;
-        navMeshSurface.voxelSize = 1;
-        NavMeshBuildSettings buildSettings = navMeshSurface.GetBuildSettings();
-        buildSettings.agentSlope = 25;
-        navMeshSurface.BuildNavMesh();
         
         /// /////////////////////////////////////////////////////////////////////////////////////////
         /// center spawn 
         ///////////////////////////////////////////////////////////////////////////////////////////// 
 
-        terrainCollider = convertedTerrain.GetComponent<TerrainCollider>();
-        Vector3 terrainSize = spawned.GetComponentInChildren<MeshRenderer>().bounds.size;
-        int numberOfObjects = 10;
+    //     terrainCollider = convertedTerrain.GetComponent<TerrainCollider>();
+    //     Bounds terrainBounds = spawned.GetComponentInChildren<MeshRenderer>().bounds;
+    //     Vector3 terrainSize = terrainBounds.size;
+    //     int numberOfObjects = 10;
         
 
-        for (int i = 0; i < numberOfObjects; i++)
-        {
-            // Generate a UnityEngine.Random position within the terrain's bounds
-            Vector3 position = new Vector3(UnityEngine.Random.Range(0, terrainSize.x), 1000, UnityEngine.Random.Range(0, terrainSize.z));
-            if (Physics.Raycast(position, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground")) && (hit.point.y < maxHeight && hit.point.y > minHeight))
-            {
-                position.y = hit.point.y;
-                Quaternion rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
-                Vector3 euler = rotation.eulerAngles;
-                //converting euler angles to degrees
-                euler.x = (euler.x > 180) ? euler.x - 360 : euler.x;
-                euler.z = (euler.z > 180) ? euler.z - 360 : euler.z;
-                if (euler.x > minSlope && euler.x < maxSlope && euler.z > minSlope && euler.z < maxSlope)
-                {
-                    // Spawn the object at the hit point
-                    GameObject villageCenter = Instantiate(well, position, rotation);
-                    agentPos.transform.position = villageCenter.transform.position;
-                    agent = Instantiate(agentPos, position, rotation);
+    //     for (int i = 0; i < numberOfObjects; i++)
+    //     {
+    //         // Generate a UnityEngine.Random position within the terrain's bounds
+    //         Vector3 position = new Vector3(UnityEngine.Random.Range(0, terrainSize.x), 1000, UnityEngine.Random.Range(0, terrainSize.z));
+    //         if (Physics.Raycast(position, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground")) && (hit.point.y < maxHeight && hit.point.y > minHeight))
+    //         {
+    //             position.y = hit.point.y;
+    //             Quaternion rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
+    //             Vector3 euler = rotation.eulerAngles;
+    //             //converting euler angles to degrees
+    //             euler.x = (euler.x > 180) ? euler.x - 360 : euler.x;
+    //             euler.z = (euler.z > 180) ? euler.z - 360 : euler.z;
+    //             if (euler.x > minSlope && euler.x < maxSlope && euler.z > minSlope && euler.z < maxSlope)
+    //             {
+    //                 // Spawn the object at the hit point
+    //                 GameObject villageCenter = Instantiate(well, position, rotation);
+    //                 agentPos.transform.position = villageCenter.transform.position;
+    //                 agent = Instantiate(agentPos, position, rotation);
 
-                    villageCenter.name = "Well" + scList.Count.ToString();
-                    SphereCollider villageCenterCollider = villageCenter.AddComponent<SphereCollider>();
-                    villageCenterCollider.radius = 200f;
-                    villageCenterCollider.isTrigger = true;
-                    scList.Add(villageCenterCollider);
+    //                 villageCenter.name = "Well" + scList.Count.ToString();
+    //                 SphereCollider villageCenterCollider = villageCenter.AddComponent<SphereCollider>();
+    //                 villageCenterCollider.radius = 200f;
+    //                 villageCenterCollider.isTrigger = true;
+    //                 scList.Add(villageCenterCollider);
 
-                    agentList.Add(agent.GetComponent<NavMeshAgent>());
-                }
-                else
-                {
-                    numberOfObjects++;
-                }
-            }
-            else
-            {
-                numberOfObjects++;
-            }
-        }
+    //                 agentList.Add(agent.GetComponent<NavMeshAgent>());
+    //             }
+    //             else
+    //             {
+    //                 numberOfObjects++;
+    //             }
+    //         }
+    //         else
+    //         {
+    //             numberOfObjects++;
+    //         }
+    //     }
 
-        for(int i =1; i<agentList.Count; i++){
-            generatePath(agentList[0], agentList[i].transform.position);
-        }
+    //     for(int i =1; i<agentList.Count; i++){
+    //         generatePath(agentList[0], agentList[i].transform.position);
+    //     }
 
         int giantCount = 1;
         for (int i = 0; i < giantCount; i++)
@@ -199,199 +409,33 @@ public class SingleTerrainGen : MonoBehaviour
         }
         
 
-    //     // /////////////////////////////////////////////////////////////////////////////////////////
-    //     // // surrounding houses spawn
-    //     // /////////////////////////////////////////////////////////////////////////////////////////
-            spawnSurroundingObjects(50, 1, villageHouse);
+    // //     // /////////////////////////////////////////////////////////////////////////////////////////
+    // //     // // surrounding houses spawn
+    // //     // /////////////////////////////////////////////////////////////////////////////////////////
+    //         spawnSurroundingObjects(50, 1, villageHouse);
 
-            // /////////////////////////////////////////////////////////////////////////////////////////
-        /// Mass Place Trees
-        /// /////////////////////////////////////////////////////////////////////////////////////////
-        TreePrototype[] treePrototypes = new TreePrototype[treePrefabs.Length];
-        // Iterate over each tree prefab
-        for (int i = 0; i < treePrefabs.Length; i++)
-        {
-            // Create a new TreePrototype object
-            TreePrototype treePrototype = new TreePrototype();
-            // Assign the tree prefab to the prefab property of the TreePrototype
-            treePrototype.prefab = treePrefabs[i];
-            // Assign the TreePrototype to an element of the treePrototypes array
-            treePrototypes[i] = treePrototype;
-        }
-        // Assign the treePrototypes array to the terrainData's treePrototypes property
-        t.terrainData.treePrototypes = treePrototypes;
-        // Refresh the terrain's tree instances
-        t.terrainData.RefreshPrototypes();
-
-
-
-        TreeInstance[] trees = new TreeInstance[numberOfTrees+ numberOfFauna];
-        for (int i = 0; i < numberOfTrees + numberOfFauna; i++)
-        {
-            // Generate a random normalized position for the tree instance
-            float x = Random.Range(0f, 1f);
-            float z = Random.Range(0f, 1f);
-            // Convert the normalized position to a world space position
-            Vector3 worldSpacePosition = new Vector3(x * t.terrainData.size.x, 0, z * t.terrainData.size.z) + t.transform.position;
-            // Calculate the y position of the tree instance using the SampleHeight method
-            float y = t.SampleHeight(worldSpacePosition);
-            //rocks
-            if(i<=200){
-                if (y >= minHeight && y <= maxHeight)
-                {
-                        // Convert the world space position to a normalized position
-                        Vector3 normalizedPosition = new Vector3(x, y / t.terrainData.size.y, z);
-                        // Create a new TreeInstance object
-                        TreeInstance treeInstance = new TreeInstance();
-                        // Assign a random prototypeIndex to the tree instance
-                        treeInstance.prototypeIndex = Random.Range(7,9);
-                        // Assign the normalized position to the tree instance
-                        treeInstance.position = normalizedPosition;
-                        // Set the widthScale and heightScale of the tree instance
-                        int random = Random.Range(3,5);
-                        treeInstance.widthScale = random;
-                        treeInstance.heightScale = random;
-                        // Set the color and lightmapColor of the tree instance
-                        treeInstance.color = Color.white;
-                        treeInstance.lightmapColor = Color.white;
-                        treeInstance.rotation = Random.Range(0f, 360f);
-                        trees[i] = treeInstance;
-                }else i--;
-            }
-            //stones
-            else if(i<1200 && i>200){
-                if (y >= minHeight && y <= maxHeight)
-                {
-                        // Convert the world space position to a normalized position
-                        Vector3 normalizedPosition = new Vector3(x, y / t.terrainData.size.y, z);
-                        // Create a new TreeInstance object
-                        TreeInstance treeInstance = new TreeInstance();
-                        // Assign a random prototypeIndex to the tree instance
-                        treeInstance.prototypeIndex = Random.Range(9,18);
-                        // Assign the normalized position to the tree instance
-                        treeInstance.position = normalizedPosition;
-                        // Set the widthScale and heightScale of the tree instance
-                        int random = Random.Range(5,10);
-                        treeInstance.widthScale = random;
-                        treeInstance.heightScale = random;
-                        // Set the color and lightmapColor of the tree instance
-                        treeInstance.color = Color.white;
-                        treeInstance.lightmapColor = Color.white;
-                        treeInstance.rotation = Random.Range(0f, 360f);
-                        trees[i] = treeInstance;
-                }else i--;
-            }
-            else if(i<=numberOfTrees && i>1200){
-                //trees
-                if (y >= minHeight && y <= maxHeight)
-                {
-                        // Convert the world space position to a normalized position
-                        Vector3 normalizedPosition = new Vector3(x, y / t.terrainData.size.y, z);
-                        // Create a new TreeInstance object
-                        TreeInstance treeInstance = new TreeInstance();
-                        // Assign a random prototypeIndex to the tree instance
-                        float randomTree = Random.Range(0f, 1f);
-                        if(randomTree<=0.05f){
-                            treeInstance.prototypeIndex = 6;
-                        }else{
-                            treeInstance.prototypeIndex = Random.Range(0, 5);
-                        }
-                        // Assign the normalized position to the tree instance
-                        treeInstance.position = normalizedPosition;
-                        // Set the widthScale and heightScale of the tree instance
-                        int random = Random.Range(3,5);
-                        treeInstance.widthScale = random;
-                        treeInstance.heightScale = random;
-                        // Set the color and lightmapColor of the tree instance
-                        treeInstance.color = Color.white;
-                        treeInstance.lightmapColor = Color.white;
-                        treeInstance.rotation = Random.Range(0f, 360f);
-                        trees[i] = treeInstance;
-                }else i--;
-            }else{
-                // if (y >= minHeight && y <= 700)
-                // {
-                //         // Convert the world space position to a normalized position
-                //         Vector3 normalizedPosition = new Vector3(x, y / t.terrainData.size.y, z);
-                //         // Create a new TreeInstance object
-                //         TreeInstance treeInstance = new TreeInstance();
-                //         // Assign a random prototypeIndex to the tree instance
-                        
-                //         treeInstance.prototypeIndex = 19;
-                    
-                //         // Assign the normalized position to the tree instance
-                //         treeInstance.position = normalizedPosition;
-                //         // Set the widthScale and heightScale of the tree instance
-                //         int random = Random.Range(100,101);
-                //         treeInstance.widthScale = 1;
-                //         treeInstance.heightScale = 1;
-                //         // Set the color and lightmapColor of the tree instance
-                //         treeInstance.color = Color.white;
-                //         treeInstance.lightmapColor = Color.white;
-                //         treeInstance.rotation = Random.Range(0f, 360f);
-                //         trees[i] = treeInstance;
-                // }else i--;
-            }
-        }
-        t.terrainData.treeInstances = trees;
-
-
-        // /////////////////////////////////////////////////////////////////////////////////////////
-        /// Mass Place Grass
-        /// /////////////////////////////////////////////////////////////////////////////////////////
         
-        // Create an array to hold the DetailPrototype objects
-        DetailPrototype[] detailPrototypes = new DetailPrototype[grassPrefabs.Length];
+        /////////////////////////////////////////////////////////////////////////////////////////
+        // Mass Place Trees
+        // /////////////////////////////////////////////////////////////////////////////////////////
+        
 
-        // Iterate over each grass prefab
-        for (int i = 0; i < grassPrefabs.Length; i++)
-        {
-            // Create a new DetailPrototype object
-            DetailPrototype detailPrototype = new DetailPrototype();
-            // Assign the grass prefab to the prototype property of the DetailPrototype
-            detailPrototype.useInstancing = true;
-            detailPrototype.prototype = grassPrefabs[i];
-            detailPrototype.usePrototypeMesh = true;
-            
-            // Set other properties of the DetailPrototype (such as render mode, min/max width/height, etc.)
-            detailPrototype.renderMode = DetailRenderMode.VertexLit;
-            detailPrototype.minWidth = 10f;
-            detailPrototype.maxWidth = 20f;
-            detailPrototype.minHeight = 10f;
-            detailPrototype.maxHeight = 20f;
-            detailPrototype.noiseSpread = 0.5f;
-            detailPrototype.noiseSeed = 693192397;
-            // Assign the DetailPrototype to an element of the detailPrototypes array
-            detailPrototypes[i] = detailPrototype;
-        }
+        
 
-        // Assign the detailPrototypes array to the terrainData's detailPrototypes property
-        t.terrainData.detailPrototypes = detailPrototypes;
-        t.terrainData.RefreshPrototypes();
-        t.terrainData.SetDetailResolution(2048, 32);
-        // Create a 2D array to hold the detail densities
-        var map = t.terrainData.GetDetailLayer(0, 0, t.terrainData.detailWidth, t.terrainData.detailHeight, 0);
-        var map2 = t.terrainData.GetDetailLayer(0, 0, t.terrainData.detailWidth, t.terrainData.detailHeight, 0);
+        //splitting terrain into chunks
 
-        // Set the density of the detail objects
-        for (int y = 0; y < t.terrainData.detailHeight; y++)
-        {
-            for (int x = 0; x < t.terrainData.detailWidth; x++)
-            {
-                float h = t.terrainData.GetInterpolatedHeight((float)x / t.terrainData.detailWidth, (float)y / t.terrainData.detailHeight);
+        //GenerateTerrainChunks(t,noiseMap, gradient);
 
-                if (h > minHeight && h < 700)
-                {
-                    map[y, x] = 105; 
-                    map2[y, x] = 105;// second type of grass
-                }
-            }
-        }
+        Lightmapping.Bake();
+        StaticOcclusionCulling.Compute();
+        
+        
+        
+        // t.Flush();
+        
 
-        // Assign the detail layer to the terrain data
-        t.terrainData.SetDetailLayer(0, 0, 0, map);
-        t.terrainData.SetDetailLayer(0, 0, 1, map2);
-
+        //occlusionCulling = GameObject.Find("occlusionCullingScript");
+        //occlusionCulling.GetComponent<occlusionCulling>().terrain = convertedTerrain;
 
     // //     // /////////////////////////////////////////////////////////////////////////////////////////
     // //     // // Generate path
@@ -443,6 +487,7 @@ public class SingleTerrainGen : MonoBehaviour
     //     }
     }
 
+    
 
 
     public void spawnSurroundingObjects(float minDistance, float radiusChange, GameObject prefab)

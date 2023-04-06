@@ -192,6 +192,7 @@ GameObject:
   - component: {fileID: 6981374108352111177}
   - component: {fileID: 2790205826044876088}
   - component: {fileID: 6443196368992079825}
+  - component: {fileID: -1485361151444436521}
   m_Layer: 6
   m_Name: EM_Rock02a_PRE
   m_TagString: Untagged
@@ -257,6 +258,19 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 0.776989
   m_Center: {x: 0, y: 0.27698898, z: 0}
+--- !u!114 &-1485361151444436521
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7757734511686695155}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63c2e2af3cac248aa88df027024cfcf6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  visibleRadius: 50
 --- !u!1 &8560921972699191041
 GameObject:
   m_ObjectHideFlags: 0

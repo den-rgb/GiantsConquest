@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 475872118457758263}
   - component: {fileID: 4665936484663117126}
   - component: {fileID: -1899289640062704594}
+  - component: {fileID: -5711467646608791511}
   m_Layer: 6
   m_Name: EM_Stone1_PRE
   m_TagString: Untagged
@@ -76,6 +77,19 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 4.1699533
   m_Center: {x: 0, y: 3.0729938, z: 0.5969591}
+--- !u!114 &-5711467646608791511
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 995704017250134157}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63c2e2af3cac248aa88df027024cfcf6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  visibleRadius: 100
 --- !u!1 &2011810625431677060
 GameObject:
   m_ObjectHideFlags: 0

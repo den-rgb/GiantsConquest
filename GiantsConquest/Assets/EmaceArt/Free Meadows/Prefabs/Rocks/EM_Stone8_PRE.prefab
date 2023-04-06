@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4490412201532896}
   - component: {fileID: 3268447152957117168}
   - component: {fileID: 6508862542914343781}
+  - component: {fileID: 3563759861370252991}
   m_Layer: 6
   m_Name: EM_Stone8_PRE
   m_TagString: Untagged
@@ -76,6 +77,19 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 3.2413368
   m_Center: {x: 0, y: 1.0340142, z: -0.15261793}
+--- !u!114 &3563759861370252991
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1922534017519956}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63c2e2af3cac248aa88df027024cfcf6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  visibleRadius: 50
 --- !u!1 &4112447731490625969
 GameObject:
   m_ObjectHideFlags: 0
