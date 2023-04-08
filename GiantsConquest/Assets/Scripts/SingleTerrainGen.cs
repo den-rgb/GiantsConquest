@@ -1,4 +1,5 @@
 
+
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
@@ -25,6 +26,8 @@ public class SingleTerrainGen : MonoBehaviour
     public float maxSlope;
     public float minSlope;
     private RaycastHit hit;
+
+    GameObject spawnedPlayer;
 
     //Colouring
     public Gradient gradient;
@@ -72,9 +75,9 @@ public class SingleTerrainGen : MonoBehaviour
     // Occlusion Culling
 
     private GameObject occlusionCulling;
-
+    public GameObject platform;
     // chunks
-
+    Vector3 terrainSize;
     
     public void Start()
     {
@@ -114,11 +117,19 @@ public class SingleTerrainGen : MonoBehaviour
         gradient = GameObject.Find("Mesh2Terrain").GetComponent<TerrainColour>().gradient;
         float[,] noiseMap = spawned.GetComponent<MapGenerator>().noiseMap;
         convertedTerrain.AddComponent<TerrainColour>();
-        Vector3 terrainSize = convertedTerrain.GetComponent<Terrain>().terrainData.size;
+        terrainSize = convertedTerrain.GetComponent<Terrain>().terrainData.size;
         Texture2D mapTexture = convertedTerrain.GetComponent<TerrainColour>().DisplayTerrain(noiseMap, gradient, convertedTerrain.GetComponent<Terrain>());
         
+        // float terrainSizeX = mapTexture.width;
+        // float terrainSizeZ = mapTexture.height;
         mesh2Terrain.GetComponent<Object2Terrain>().CreateTerrainChunks(spawned, mapTexture);
         GameObject[] chunks = new GameObject[20];
+        Vector3 firstChunkPos = new Vector3(0, 0, 0);
+
+        int numberOfObjects = 10;
+        float pos0x = firstChunkPos.x + terrainSize.x/2;
+        float pos0z = firstChunkPos.z + terrainSize.z/2;
+        
         
         for (int i = 0; i<20; i++){
             GameObject chunk = GameObject.Find("Chunk" + i);
@@ -273,10 +284,10 @@ public class SingleTerrainGen : MonoBehaviour
                 
                 // Set other properties of the DetailPrototype (such as render mode, min/max width/height, etc.)
                 detailPrototype.renderMode = DetailRenderMode.VertexLit;
-                detailPrototype.minWidth = 10f;
-                detailPrototype.maxWidth = 20f;
-                detailPrototype.minHeight = 10f;
-                detailPrototype.maxHeight = 20f;
+                detailPrototype.minWidth = 20f;
+                detailPrototype.maxWidth = 25f;
+                detailPrototype.minHeight = 5f;
+                detailPrototype.maxHeight = 10f;
                 detailPrototype.noiseSpread = 0.5f;
                 detailPrototype.noiseSeed = 69420;
                 // Assign the DetailPrototype to an element of the detailPrototypes array
@@ -298,7 +309,7 @@ public class SingleTerrainGen : MonoBehaviour
                 {
                     float h = t.terrainData.GetInterpolatedHeight((float)x / t.terrainData.detailWidth, (float)y / t.terrainData.detailHeight);
 
-                    if (h > 130 && h < 500)
+                    if (h > minHeight && h < maxHeight)
                     {
                         map[y, x] = 4; 
                         map2[y, x] = 4;// second type of grass
@@ -310,14 +321,17 @@ public class SingleTerrainGen : MonoBehaviour
             t.terrainData.SetDetailLayer(0, 0, 0, map);
             t.terrainData.SetDetailLayer(0, 0, 1, map2);
             t.treeDistance = 1000;
-            t.detailObjectDistance = 100;
+            t.detailObjectDistance = 200;
 
             OcclusionArea occlusionArea = chunk.AddComponent<OcclusionArea>();
-            Terrain terrain = chunk.GetComponent<Terrain>();
-            Vector3 terrainS = terrain.terrainData.bounds.size;
+            Vector3 terrainS = t.terrainData.bounds.size;
             occlusionArea.size = new Vector3(terrainS.x, 1000, terrainS.z);
             occlusionArea.center = new Vector3(terrainS.x/2, 0, terrainS.z/2);
-            
+            t.Flush();
+
+            if(i==0){
+                firstChunkPos = chunk.transform.position;
+            }
             
             chunks.Append(chunk);
         }
@@ -326,116 +340,118 @@ public class SingleTerrainGen : MonoBehaviour
         print(chunks.Length + " chunks");
         Destroy(convertedTerrain);
         Destroy(mesh2Terrain);
+
         spawned.transform.DetachChildren();
         WaterGenerator waterScript = FindObjectOfType<WaterGenerator>();
         GameObject water = waterScript.gameObject;
         water.transform.position = new Vector3(1900, -50, 1500);
         Destroy(spawned);
 
+        Lightmapping.Bake();
+        StaticOcclusionCulling.Compute();
+
         
         /// /////////////////////////////////////////////////////////////////////////////////////////
         /// center spawn 
         ///////////////////////////////////////////////////////////////////////////////////////////// 
 
-    //     terrainCollider = convertedTerrain.GetComponent<TerrainCollider>();
-    //     Bounds terrainBounds = spawned.GetComponentInChildren<MeshRenderer>().bounds;
-    //     Vector3 terrainSize = terrainBounds.size;
-    //     int numberOfObjects = 10;
+        // /// /////////////////////////////////////////////////////////////////////////////////////////
+        // /// spawn Giant
+        // /// /////////////////////////////////////////////////////////////////////////////////////////   
         
-
-    //     for (int i = 0; i < numberOfObjects; i++)
-    //     {
-    //         // Generate a UnityEngine.Random position within the terrain's bounds
-    //         Vector3 position = new Vector3(UnityEngine.Random.Range(0, terrainSize.x), 1000, UnityEngine.Random.Range(0, terrainSize.z));
-    //         if (Physics.Raycast(position, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground")) && (hit.point.y < maxHeight && hit.point.y > minHeight))
-    //         {
-    //             position.y = hit.point.y;
-    //             Quaternion rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
-    //             Vector3 euler = rotation.eulerAngles;
-    //             //converting euler angles to degrees
-    //             euler.x = (euler.x > 180) ? euler.x - 360 : euler.x;
-    //             euler.z = (euler.z > 180) ? euler.z - 360 : euler.z;
-    //             if (euler.x > minSlope && euler.x < maxSlope && euler.z > minSlope && euler.z < maxSlope)
-    //             {
-    //                 // Spawn the object at the hit point
-    //                 GameObject villageCenter = Instantiate(well, position, rotation);
-    //                 agentPos.transform.position = villageCenter.transform.position;
-    //                 agent = Instantiate(agentPos, position, rotation);
-
-    //                 villageCenter.name = "Well" + scList.Count.ToString();
-    //                 SphereCollider villageCenterCollider = villageCenter.AddComponent<SphereCollider>();
-    //                 villageCenterCollider.radius = 200f;
-    //                 villageCenterCollider.isTrigger = true;
-    //                 scList.Add(villageCenterCollider);
-
-    //                 agentList.Add(agent.GetComponent<NavMeshAgent>());
-    //             }
-    //             else
-    //             {
-    //                 numberOfObjects++;
-    //             }
-    //         }
-    //         else
-    //         {
-    //             numberOfObjects++;
-    //         }
-    //     }
-
-    //     for(int i =1; i<agentList.Count; i++){
-    //         generatePath(agentList[0], agentList[i].transform.position);
-    //     }
 
         int giantCount = 1;
         for (int i = 0; i < giantCount; i++)
         {
-            Vector3 giantSpawn = new Vector3(UnityEngine.Random.Range(0, terrainSize.x), 1000, UnityEngine.Random.Range(0, terrainSize.z));
-            if (Physics.Raycast(giantSpawn, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground")) && (hit.point.y < maxHeight && hit.point.y > minHeight))
-            {
-                giantSpawn.y = hit.point.y + 10f;
-                Quaternion rotation = Quaternion.FromToRotation(Vector3.up, hit.normal);
-                Vector3 euler = rotation.eulerAngles;
-                    //converting euler angles to degrees
-                euler.x = (euler.x > 180) ? euler.x - 360 : euler.x;
-                euler.z = (euler.z > 180) ? euler.z - 360 : euler.z;
-                if (euler.x > minSlope && euler.x < maxSlope && euler.z > minSlope && euler.z < maxSlope)
-                    {
-                        Instantiate(giant, giantSpawn, rotation);
-                    }else{
-                        giantCount++;
-                    }
-            }else{
-                giantCount++;
-            }
+            spawnedPlayer = Instantiate(giant, new Vector3(Random.Range(firstChunkPos.x, firstChunkPos.x+ terrainSize.x), 1000 , Random.Range(firstChunkPos.x, firstChunkPos.x+ terrainSize.x)), Quaternion.identity);
         }
+
         
+        
+        
+        int iter = 1000;
+        Vector3 chunkSize = new Vector3(terrainSize.x / 10, terrainSize.y, terrainSize.z / 10);
+        for (int i = 0; i < numberOfObjects; i++)
+        {
+            int random = Random.Range(0, 20);
+            GameObject chunkPos = GameObject.Find("Chunk" + random);
+
+            Vector3 position = new Vector3(
+                Random.Range(chunkPos.transform.position.x, chunkPos.transform.position.x + chunkSize.x),
+                2000,
+                Random.Range(chunkPos.transform.position.z, chunkPos.transform.position.z + chunkSize.z)
+            );
+            position.y = GetTerrainHeight(position);
+
+            if (position.y > minHeight && position.y < maxHeight)
+            {
+                Quaternion rotation = GetFinalRotation(position);
+
+                if (IsValidSlope(rotation, minSlope, maxSlope))
+                {
+                    if (IsPositionFarFromCenters(position, scList))
+                    {
+                        Vector3 instantiationPoint = GetInstantiationPoint(position, well);
+                        GameObject villageCenter = Instantiate(well, instantiationPoint, rotation);
+                        agentPos.transform.position = villageCenter.transform.position;
+                        agent = Instantiate(agentPos, instantiationPoint, rotation);
+                        villageCenter.name = "Well" + scList.Count.ToString();
+                        SphereCollider villageCenterCollider = villageCenter.AddComponent<SphereCollider>();
+                        villageCenterCollider.radius = 200f;
+                        villageCenterCollider.isTrigger = true;
+                        scList.Add(villageCenterCollider);
+
+                        // Find the nearest valid position on the NavMesh and place the agent there
+                        NavMeshHit hit;
+                        if (NavMesh.SamplePosition(agent.transform.position, out hit, 20f, NavMesh.AllAreas))
+                        {
+                            agent.transform.position = hit.position;
+                        }
+                        else
+                        {
+                            // Handle the case when no valid position is found within the specified range
+                            Destroy(agent);
+                            Destroy(villageCenter);
+                            i--;
+                            continue;
+                        }
+
+                        agentList.Add(agent.GetComponent<NavMeshAgent>());
+                    }
+                    else
+                    {
+                        i--;
+                    }
+                }
+                else i--;
+            }
+            else i--;
+        }
+
+
+
+        for(int i =1; i<agentList.Count; i++){
+            generatePath(agentList[0], agentList[i].transform.position);
+        }
+
+        int r = Random.Range(0,agentList.Count);
+        spawnedPlayer.transform.position = new Vector3(agentList[r].transform.position.x + 20, agentList[r].transform.position.y + 10 , agentList[r].transform.position.z + 20);
 
     // //     // /////////////////////////////////////////////////////////////////////////////////////////
     // //     // // surrounding houses spawn
     // //     // /////////////////////////////////////////////////////////////////////////////////////////
-    //         spawnSurroundingObjects(50, 1, villageHouse);
+        SpawnSurroundingObjects(50, 1, villageHouse);
 
-        
-        /////////////////////////////////////////////////////////////////////////////////////////
-        // Mass Place Trees
-        // /////////////////////////////////////////////////////////////////////////////////////////
         
 
         
 
-        //splitting terrain into chunks
-
-        //GenerateTerrainChunks(t,noiseMap, gradient);
-
-        Lightmapping.Bake();
-        StaticOcclusionCulling.Compute();
         
         
         
-        // t.Flush();
+        
         
 
-        //occlusionCulling = GameObject.Find("occlusionCullingScript");
-        //occlusionCulling.GetComponent<occlusionCulling>().terrain = convertedTerrain;
 
     // //     // /////////////////////////////////////////////////////////////////////////////////////////
     // //     // // Generate path
@@ -486,83 +502,171 @@ public class SingleTerrainGen : MonoBehaviour
     //         }
     //     }
     }
-
     
+    bool IsPositionFarFromCenters(Vector3 position, List<SphereCollider> villageCenters)
+    {
+        float minDistanceBetweenCenters = 750f;
+        if(villageCenters.Count != 0){
+            foreach (SphereCollider center in villageCenters)
+            {
+                if (Vector3.Distance(position, center.transform.position) < minDistanceBetweenCenters)
+                {
+                    return false;
+                }
+            }
+        } else return true;
+        return true;
+    }
 
 
-    public void spawnSurroundingObjects(float minDistance, float radiusChange, GameObject prefab)
+    public void SpawnSurroundingObjects(float minDistance, float radiusChange, GameObject prefab)
     {
         for (int j = 0; j < scList.Count; j++)
         {
             int spawned = 0;
             int iterations = 0;
-            int count = UnityEngine.Random.Range(3,7);
-            pathIteration = new List<Vector3>();
+            int count = UnityEngine.Random.Range(3, 7);
+            List<Vector3> pathIteration = new List<Vector3>();
+
+            // Keep trying to spawn objects until the desired count is reached or the iteration limit is hit.
             while (spawned < count && iterations < 1000)
             {
-                Vector3 RandomPos = scList[j].bounds.center + UnityEngine.Random.insideUnitSphere * (scList[j].radius / radiusChange);
-                RandomPos.y = 1000f;
-                if (Physics.Raycast(RandomPos, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground")) && (hit.point.y < maxHeight && hit.point.y > minHeight))
+                iterations++;
+
+                // Generate a random position and find the corresponding terrain height.
+                Vector3 randomPos = GetRandomPosition(scList[j], radiusChange, minDistance);
+                float terrainHeight = GetTerrainHeight(randomPos);
+
+                // Check if the position is within the desired height range.
+                if (terrainHeight < maxHeight && terrainHeight > minHeight)
                 {
-                    int raycastCount = 360;
-                    float angleStep = 360f / raycastCount;
-                    Vector3 centeObj = prefab.transform.localScale / 2f;
-                    Vector3 instantiationPoint = RandomPos + centeObj;
-                    instantiationPoint.y = hit.point.y;
-                    Vector3 center = scList[j].bounds.center;
-                    Vector3 newCenter = new Vector3(center.x, instantiationPoint.y, center.z);
-                    Vector3 direction = newCenter - instantiationPoint;
-                    direction = -direction;
-                    Quaternion rotationCenter = Quaternion.LookRotation(direction, Vector3.up);
-                    Quaternion rotationNormal = Quaternion.FromToRotation(Vector3.up, hit.normal); //possibly needed changing due to hit.normal not being the same hit point as instantiationPoint
-                    Quaternion finalRotation = rotationNormal * rotationCenter;
+                    // Calculate the position and rotation for the object to be spawned.
+                    Vector3 instantiationPoint = GetInstantiationPoint(randomPos, prefab);
+                    Quaternion finalRotation = GetFinalRotation(instantiationPoint);
 
-                    //Check if too close too height change
-                    Vector3 checkSurround = new Vector3(instantiationPoint.x, instantiationPoint.y + 6.5f, instantiationPoint.z);
-                    for (int i = 0; i < raycastCount; i++)
+                    // Check if the object would be placed on a slope that's too steep or blocked by other houses.
+                    if (IsValidSlope(finalRotation, minSlope, maxSlope) &&
+                        !IsBlockedByHeightChange(instantiationPoint) &&
+                        !IsBlockedByHouses(instantiationPoint, scList[j].bounds.center, minDistance))
                     {
-                        float angle = i * angleStep;
-                        Vector3 checkDirection = Quaternion.Euler(0, angle, 0) * Vector3.right;
-                        if (Physics.Raycast(checkSurround, checkDirection, out hit, 20f, LayerMask.GetMask("Ground"))) continue;
+                        // Spawn the object and configure its components.
+                        GameObject spawnedObj = Instantiate(prefab, instantiationPoint, finalRotation);
+                        spawnedObj.name = $"House {j}{spawned}";
+                        AddHouseCollider(spawnedObj, 50f);
 
-                    }
-                    
-                    // Check if any houses are in the way
-                    float distanceToWell = Vector3.Distance(center, checkSurround);
-                    Vector3 difference = center - checkSurround;
-                    Vector3 toCenter = difference.normalized;
-                    if (Physics.Raycast(checkSurround, toCenter, out hit, distanceToWell - 5f, LayerMask.GetMask("House"))) continue;
+                        // Record the spawned object's position and increment the spawn counter.
+                        pathIteration.Add(instantiationPoint);
+                        spawned++;
 
-                    Vector3 euler = finalRotation.eulerAngles;
-                    euler.x = (euler.x > 180) ? euler.x - 360 : euler.x;
-                    euler.z = (euler.z > 180) ? euler.z - 360 : euler.z;
-                    if (euler.x > minSlope && euler.x < maxSlope && euler.z > minSlope && euler.z < maxSlope)
-                    {
-                        instantiationPoint = new Vector3(instantiationPoint.x, instantiationPoint.y - 1.5f, instantiationPoint.z);
-                        Collider[] surroundingColliders = Physics.OverlapSphere(instantiationPoint, 50f, LayerMask.GetMask("House"));
-                        //print(scList[j]+" "+surroundingColliders.Length + surroundingColliders[0].name);
-                        if (surroundingColliders.Length == 0)
+                        if (spawned == count)
                         {
-                            float distance = Vector3.Distance(instantiationPoint, center);
-                            if (distance >= minDistance)
-                            {
-                                //print("---------" + instantiationPoint + " " + UnityEngine.RandomPos);
-                                GameObject spawnedObj = Instantiate(prefab, instantiationPoint, finalRotation);
-                                spawnedObj.name = "House " + j.ToString() + spawned.ToString();
-                                spawnedObj.AddComponent<SphereCollider>();
-                                spawnedObj.GetComponent<SphereCollider>().radius = 50f;
-                                spawnedObj.GetComponent<SphereCollider>().isTrigger = true;
-                                pathIteration.Add(instantiationPoint);
-                                spawned++;
-                                if (spawned == count) pathList.Add(pathIteration);
-                            }
+                            pathList.Add(pathIteration);
                         }
                     }
                 }
-                iterations++;
             }
         }
     }
+
+    // Helper functions go here.
+    private Vector3 GetRandomPosition(Collider sphereCollider, float radiusChange, float minimumDistance)
+    {
+        Vector3 randomPos;
+        float distance;
+
+        do
+        {
+            randomPos = sphereCollider.bounds.center + UnityEngine.Random.insideUnitSphere * (sphereCollider.bounds.extents.magnitude / radiusChange);
+            randomPos.y = 1000f;
+            distance = Vector3.Distance(randomPos, sphereCollider.bounds.center);
+        } while (distance < minimumDistance);
+
+        return randomPos;
+    }
+
+
+    private float GetTerrainHeight(Vector3 position)
+    {
+        GameObject chunkPoint = GetChunkAtPoint(position);
+        return chunkPoint.GetComponent<Terrain>().SampleHeight(position);
+    }
+
+    private Vector3 GetInstantiationPoint(Vector3 position, GameObject prefab)
+    {
+        Vector3 centerOffset = prefab.transform.localScale / 2f;
+        Vector3 instantiationPoint = position + centerOffset;
+        instantiationPoint.y = GetTerrainHeight(position);
+        return instantiationPoint;
+    }
+
+    private Quaternion GetFinalRotation(Vector3 instantiationPoint)
+    {
+        // Get the terrain normal at the instantiation point
+        GameObject chunkPoint = GetChunkAtPoint(instantiationPoint);
+        Vector3 terrainNormal = chunkPoint.GetComponent<Terrain>().terrainData.GetInterpolatedNormal(instantiationPoint.x / terrainSize.x, instantiationPoint.z / terrainSize.z);
+
+        // Calculate the rotation based on the terrain normal
+        Quaternion rotation = Quaternion.FromToRotation(Vector3.up, terrainNormal);
+
+        return rotation;
+    }
+
+
+
+    private bool IsValidSlope(Quaternion rotation, float minSlope, float maxSlope)
+    {
+        Vector3 euler = rotation.eulerAngles;
+        euler.x = (euler.x > 180) ? euler.x - 360 : euler.x;
+        euler.z = (euler.z > 180) ? euler.z - 360 : euler.z;
+
+        return euler.x > minSlope && euler.x < maxSlope && euler.z > minSlope && euler.z < maxSlope;
+    }
+
+    private bool IsBlockedByHeightChange(Vector3 instantiationPoint)
+    {
+        int raycastCount = 360;
+        float angleStep = 360f / raycastCount;
+        Vector3 checkSurround = new Vector3(instantiationPoint.x, instantiationPoint.y + 6.5f, instantiationPoint.z);
+
+        for (int i = 0; i < raycastCount; i++)
+        {
+            float angle = i * angleStep;
+            Vector3 checkDirection = Quaternion.Euler(0, angle, 0) * Vector3.right;
+            if (Physics.Raycast(checkSurround, checkDirection, out RaycastHit hit, 20f, LayerMask.GetMask("Ground")))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private bool IsBlockedByHouses(Vector3 instantiationPoint, Vector3 center, float minDistance)
+    {
+        float distanceToCenter = Vector3.Distance(center, instantiationPoint);
+        Vector3 difference = center - instantiationPoint;
+        Vector3 toCenter = difference.normalized;
+        if (Physics.Raycast(instantiationPoint, toCenter, out RaycastHit hit, distanceToCenter - 5f, LayerMask.GetMask("House")))
+        {
+            return true;
+        }
+
+        Collider[] surroundingColliders = Physics.OverlapSphere(instantiationPoint, 50f, LayerMask.GetMask("House"));
+        if (surroundingColliders.Length > 0)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+private void AddHouseCollider(GameObject house, float radius)
+{
+    SphereCollider sphereCollider = house.AddComponent<SphereCollider>();
+    sphereCollider.radius = radius;
+    sphereCollider.isTrigger = true;
+}
+
 
     int GetRandomIndex(GameObject[] array, int index)
     {
@@ -605,6 +709,15 @@ public class SingleTerrainGen : MonoBehaviour
         LineRenderer lineRenderer;
         calcPath = new NavMeshPath();
         startAgent.CalculatePath(end, calcPath);
+        if (calcPath.status == NavMeshPathStatus.PathPartial)
+        {
+            Debug.Log("Path Partial");
+            Debug.Log(calcPath.corners.Length +" - corner count");
+        }
+        if (calcPath.status == NavMeshPathStatus.PathInvalid)
+        {
+            Debug.Log("Path Invalid");
+        }
         Vector3 start = startAgent.gameObject.transform.position;
 
         int numCorners = calcPath.corners.Length;
@@ -638,23 +751,37 @@ public class SingleTerrainGen : MonoBehaviour
     lineRenderer.positionCount = steps1 + 1;
 
 
+    int validPointCount = 0;
     for (int j = 0; j <= steps1; j++)
     {
         float t = (float)j / (steps1 - 1);
         Vector3 point = CalculateBezierPoint(t, corners);
 
-        RaycastHit hit;
-        if (Physics.Raycast(point + Vector3.up * 1000f, Vector3.down, out hit, Mathf.Infinity, LayerMask.GetMask("Ground")))
-        {
-            point.y = hit.point.y;
-            lineRenderer.SetPosition(j, point);
+        // Clamp the point.x and point.z values to be within the terrain bounds
+        point.x = Mathf.Clamp(point.x, 0, terrainSize.x);
+        point.z = Mathf.Clamp(point.z, 0, terrainSize.z);
 
-            // Set the rotation of the line renderer to match the ground normal
-            Vector3 up = hit.normal;
-            Vector3 right = Vector3.Cross(point, up);
-            lineRenderer.transform.rotation = Quaternion.LookRotation(point, up) * Quaternion.FromToRotation(Vector3.up, right);
+        GameObject chunkPoint = GetChunkAtPoint(point);
+        if (chunkPoint != null)
+        {
+            point.y = chunkPoint.GetComponent<Terrain>().SampleHeight(point);
+
+            // Check if the point is not beneath the terrain
+            if (point.y >= minHeight)
+            {
+                lineRenderer.SetPosition(validPointCount, point);
+                validPointCount++;
+
+                // Set the rotation of the line renderer to match the ground normal
+                Vector3 up = hit.normal;
+                Vector3 right = Vector3.Cross(point, up);
+                lineRenderer.transform.rotation = Quaternion.LookRotation(point, up) * Quaternion.FromToRotation(Vector3.up, right);
+            }
         }
     }
+
+    // Set the number of positions in the line renderer to match the valid points count
+    lineRenderer.positionCount = validPointCount;
 
 
     }
@@ -718,6 +845,36 @@ public class SingleTerrainGen : MonoBehaviour
 
         
     }
+
+    public GameObject GetChunkAtPoint(Vector3 point)
+{
+    // Replace "terrainChunks" with the list or array that holds your terrain chunk GameObjects.
+    GameObject[] terrainChunks = GameObject.FindGameObjectsWithTag("Chunk");
+    print(terrainChunks.Length + " :terrainChunks.Length");
+
+    foreach (GameObject chunk in terrainChunks)
+    {
+        // Check if the point is within the chunk's bounds.
+        Bounds bounds = chunk.GetComponent<Terrain>().terrainData.bounds;
+        Vector3 chunkWorldPos = chunk.transform.position;
+        bounds.center += chunkWorldPos;
+
+        // Expand the bounds slightly to account for floating-point precision issues.
+        bounds.Expand(0.1f);
+
+        // Create a new Vector3 that ignores the Y component of the point when checking if it is within the chunk's bounds.
+        Vector3 pointXZ = new Vector3(point.x, bounds.center.y, point.z);
+
+        if (bounds.Contains(pointXZ))
+        {
+            return chunk;
+        }
+    }
+
+    return null;
+}
+
+
 
 }
 

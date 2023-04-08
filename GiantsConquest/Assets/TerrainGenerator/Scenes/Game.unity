@@ -107,7 +107,7 @@ NavMeshSettings:
     serializedVersion: 2
     agentTypeID: 0
     agentRadius: 0.5
-    agentHeight: 10
+    agentHeight: 1
     agentSlope: 15
     agentClimb: 0.4
     ledgeDropHeight: 0
@@ -831,6 +831,14 @@ PrefabInstance:
     - target: {fileID: 9087280053742743360, guid: 471179b24211ca784b0e138a0bc8567c, type: 3}
       propertyPath: m_Enabled
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9087280053742743360, guid: 471179b24211ca784b0e138a0bc8567c, type: 3}
+      propertyPath: maxHeight
+      value: 500
+      objectReference: {fileID: 0}
+    - target: {fileID: 9087280053742743360, guid: 471179b24211ca784b0e138a0bc8567c, type: 3}
+      propertyPath: minHeight
+      value: 130
       objectReference: {fileID: 0}
     - target: {fileID: 9087280053742743360, guid: 471179b24211ca784b0e138a0bc8567c, type: 3}
       propertyPath: woodList.Array.size

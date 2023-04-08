@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 3788870646030904525}
   - component: {fileID: 3788870646030904527}
   - component: {fileID: 3788870646030904524}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: SingleTerrain
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -331,7 +331,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2503461861467151791, guid: 9cc88b2b3738b394491a37521588a74b, type: 3}
       propertyPath: m_Layer
-      value: 4
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2503461861467151791, guid: 9cc88b2b3738b394491a37521588a74b, type: 3}
       propertyPath: m_StaticEditorFlags
