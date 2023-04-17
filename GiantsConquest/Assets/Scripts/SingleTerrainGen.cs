@@ -139,6 +139,13 @@ public class SingleTerrainGen : MonoBehaviour
             chunk.isStatic = false;
             chunk.gameObject.tag = "Chunk";
 
+            StaticEditorFlags flags = GameObjectUtility.GetStaticEditorFlags(chunk);
+            flags |= StaticEditorFlags.NavigationStatic;
+            GameObjectUtility.SetStaticEditorFlags(chunk, flags);
+            var flags2 = StaticEditorFlags.OffMeshLinkGeneration;
+            GameObjectUtility.SetStaticEditorFlags(chunk, flags2);
+            
+
             chunk.AddComponent<NavMeshSurface>();
             NavMeshSurface navMeshSurface = chunk.GetComponent<NavMeshSurface>();
             navMeshSurface.overrideTileSize = true;
@@ -385,7 +392,7 @@ public class SingleTerrainGen : MonoBehaviour
 
             if (position.y > minHeight && position.y < maxHeight)
             {
-                Quaternion rotation = GetFinalRotation(position);
+                Quaternion rotation = GetFinalRotation(position, position, false);
 
                 if (IsValidSlope(rotation, minSlope, maxSlope))
                 {
@@ -397,15 +404,15 @@ public class SingleTerrainGen : MonoBehaviour
                         agent = Instantiate(agentPos, instantiationPoint, rotation);
                         villageCenter.name = "Well" + scList.Count.ToString();
                         SphereCollider villageCenterCollider = villageCenter.AddComponent<SphereCollider>();
-                        villageCenterCollider.radius = 200f;
+                        villageCenterCollider.radius = 500f;
                         villageCenterCollider.isTrigger = true;
-                        scList.Add(villageCenterCollider);
 
                         // Find the nearest valid position on the NavMesh and place the agent there
                         NavMeshHit hit;
                         if (NavMesh.SamplePosition(agent.transform.position, out hit, 20f, NavMesh.AllAreas))
                         {
                             agent.transform.position = hit.position;
+                            scList.Add(villageCenterCollider);
                         }
                         else
                         {
@@ -435,12 +442,12 @@ public class SingleTerrainGen : MonoBehaviour
         }
 
         int r = Random.Range(0,agentList.Count);
-        spawnedPlayer.transform.position = new Vector3(agentList[r].transform.position.x + 20, agentList[r].transform.position.y + 10 , agentList[r].transform.position.z + 20);
+        spawnedPlayer.transform.position = new Vector3(agentList[r].transform.position.x + 50, agentList[r].transform.position.y + 50 , agentList[r].transform.position.z + 50);
 
     // //     // /////////////////////////////////////////////////////////////////////////////////////////
     // //     // // surrounding houses spawn
     // //     // /////////////////////////////////////////////////////////////////////////////////////////
-        SpawnSurroundingObjects(50, 1, villageHouse);
+        SpawnSurroundingObjects(100, 1, villageHouse);
 
         
 
@@ -536,13 +543,16 @@ public class SingleTerrainGen : MonoBehaviour
                 // Generate a random position and find the corresponding terrain height.
                 Vector3 randomPos = GetRandomPosition(scList[j], radiusChange, minDistance);
                 float terrainHeight = GetTerrainHeight(randomPos);
+                print(terrainHeight + " --th");
 
                 // Check if the position is within the desired height range.
                 if (terrainHeight < maxHeight && terrainHeight > minHeight)
                 {
                     // Calculate the position and rotation for the object to be spawned.
                     Vector3 instantiationPoint = GetInstantiationPoint(randomPos, prefab);
-                    Quaternion finalRotation = GetFinalRotation(instantiationPoint);
+                    Quaternion finalRotation = GetFinalRotation(instantiationPoint, scList[j].bounds.center, true);
+
+                    
 
                     // Check if the object would be placed on a slope that's too steep or blocked by other houses.
                     if (IsValidSlope(finalRotation, minSlope, maxSlope) &&
@@ -550,7 +560,8 @@ public class SingleTerrainGen : MonoBehaviour
                         !IsBlockedByHouses(instantiationPoint, scList[j].bounds.center, minDistance))
                     {
                         // Spawn the object and configure its components.
-                        GameObject spawnedObj = Instantiate(prefab, instantiationPoint, finalRotation);
+                        GameObject spawnedObj = Instantiate(prefab, instantiationPoint, finalRotation * prefab.transform.rotation);
+
                         spawnedObj.name = $"House {j}{spawned}";
                         AddHouseCollider(spawnedObj, 50f);
 
@@ -576,13 +587,22 @@ public class SingleTerrainGen : MonoBehaviour
 
         do
         {
-            randomPos = sphereCollider.bounds.center + UnityEngine.Random.insideUnitSphere * (sphereCollider.bounds.extents.magnitude / radiusChange);
+            // Get a random direction
+            Vector3 randomDirection = UnityEngine.Random.insideUnitSphere;
+            randomDirection.y = 0; // Ensure the movement is only in the XZ plane
+
+            // Calculate a random distance within the given range
+            float randomDistance = UnityEngine.Random.Range(minimumDistance, sphereCollider.bounds.extents.magnitude / radiusChange);
+
+            // Compute the new position
+            randomPos = sphereCollider.bounds.center + randomDirection.normalized * randomDistance;
             randomPos.y = 1000f;
             distance = Vector3.Distance(randomPos, sphereCollider.bounds.center);
         } while (distance < minimumDistance);
 
         return randomPos;
     }
+
 
 
     private float GetTerrainHeight(Vector3 position)
@@ -599,15 +619,35 @@ public class SingleTerrainGen : MonoBehaviour
         return instantiationPoint;
     }
 
-    private Quaternion GetFinalRotation(Vector3 instantiationPoint)
+    private Quaternion GetFinalRotation(Vector3 instantiationPoint, Vector3 targetPoint, bool look)
     {
         // Get the terrain normal at the instantiation point
         GameObject chunkPoint = GetChunkAtPoint(instantiationPoint);
-        Vector3 terrainNormal = chunkPoint.GetComponent<Terrain>().terrainData.GetInterpolatedNormal(instantiationPoint.x / terrainSize.x, instantiationPoint.z / terrainSize.z);
-
+        Terrain terrain = chunkPoint.GetComponent<Terrain>();
+        // Calculate the terrain coordinates (ranging from 0 to 1) based on the instantiation point
+        Vector3 terrainPosition = (instantiationPoint - terrain.transform.position);
+        Vector3 terrainCoordinates = new Vector3(terrainPosition.x / terrain.terrainData.size.x, 0, terrainPosition.z / terrain.terrainData.size.z);
+        
+        // Get the terrain normal at the instantiation point
+        Vector3 terrainNormal = terrain.terrainData.GetInterpolatedNormal(terrainCoordinates.x, terrainCoordinates.z);
+        Debug.DrawRay(instantiationPoint, terrainNormal * 50f, Color.green, 50f);
+        
         // Calculate the rotation based on the terrain normal
         Quaternion rotation = Quaternion.FromToRotation(Vector3.up, terrainNormal);
+        rotation *= Quaternion.Euler(0, 180, 0);
 
+        if(look){
+                Vector3 forwardVector = (targetPoint - instantiationPoint).normalized;
+                forwardVector -= Vector3.Dot(forwardVector, terrainNormal) * terrainNormal;
+                forwardVector.Normalize();
+
+                // Calculate the rotation to make the object face the target point
+                Quaternion lookRotation = Quaternion.LookRotation(forwardVector, terrainNormal);
+
+                // Combine the terrain alignment and the look rotation
+                rotation = lookRotation * rotation;
+        }
+        
         return rotation;
     }
 
