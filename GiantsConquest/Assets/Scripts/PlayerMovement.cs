@@ -49,8 +49,8 @@ public class PlayerMovement : MonoBehaviour
         movementDirection = movementDirection.normalized;
 
         // Check if either the left foot collider or the right foot collider is touching the ground
-        pushOff = Physics.CheckCapsule(LfootColider.bounds.center, RfootColider.bounds.center, LfootColider.radius, LayerMask.GetMask("Ground")) ||
-                     Physics.CheckCapsule(LfootColider.bounds.center, RfootColider.bounds.center, RfootColider.radius, LayerMask.GetMask("Ground"));
+        pushOff = Physics.CheckCapsule(LfootColider.bounds.center,LfootColider.bounds.center, LfootColider.radius, LayerMask.GetMask("Ground")) || 
+                    Physics.CheckCapsule(RfootColider.bounds.center, RfootColider.bounds.center, RfootColider.radius, LayerMask.GetMask("Ground"));
 
         // Check if the sphere collider is touching the ground
         isOnGround = Physics.CheckSphere(basicCollider.bounds.center, basicCollider.radius, LayerMask.GetMask("Ground"));

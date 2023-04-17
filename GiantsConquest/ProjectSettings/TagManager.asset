@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Fire
   - Ground
+  - path
   layers:
   - Default
   - TransparentFX
@@ -13,10 +14,10 @@ TagManager:
   - Ground
   - Water
   - UI
-  - Spawned
-  - 
-  - 
-  - 
+  - SpawnedTerrain
+  - House
+  - stone
+  - well
   - 
   - 
   - 

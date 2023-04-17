@@ -51,15 +51,26 @@ public class MapGenerator : MonoBehaviour
     private MapDisplay _mapDisplay;
     private MeshData _meshData;
     private Mesh _netMesh;
-
+    private MeshCollider meshCollider;
+    private MeshFilter meshFilter;
+    public float[,] noiseMap;
     public void GenerateMap() 
     {
         if (_mapDisplay == null)
         {
             _mapDisplay = GetComponent<MapDisplay>();
         }
-        
-        float[,] noiseMap = Noise.GenerateNoiseMap(mapSize, noiseData, island, islandSizeMultiplier);
+        if (meshFilter == null)
+        {
+            meshFilter = gameObject.AddComponent<MeshFilter>();
+        }
+        else
+        {
+            meshFilter = GetComponent<MeshFilter>();
+        }
+        meshCollider = GetComponent<MeshCollider>();
+
+        noiseMap = Noise.GenerateNoiseMap(mapSize, noiseData, island, islandSizeMultiplier);
     
         _netMesh = MeshGenerator.GenerateTriangulatedMesh(mapSize, distributionData);
     
@@ -72,8 +83,9 @@ public class MapGenerator : MonoBehaviour
         _meshData = MeshGenerator.GenerateMeshData(_netMesh,noiseData.meshHeightCurve, noiseMap, noiseData.meshHeightMultiplier);
         Color[] colors = _mapDisplay.GenerateColors(_netMesh, noiseMap);
         _meshData.AddColors(colors);
-        UnityEngine.Mesh m = _meshData.CreateMesh();
-        _mapDisplay.DisplayMesh(m);
+        meshFilter.sharedMesh = _meshData.CreateMesh();
+        meshCollider.sharedMesh = meshFilter.sharedMesh;
+        _mapDisplay.DisplayMesh(meshFilter.sharedMesh);
 
         if (waterGenerator != null)
         {
