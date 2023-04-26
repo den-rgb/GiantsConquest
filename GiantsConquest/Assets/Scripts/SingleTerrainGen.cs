@@ -63,14 +63,18 @@ public class SingleTerrainGen : MonoBehaviour
     public GameObject blue;
     public GameObject green;
     public LayerMask walkableLayer;
+    public List<GameObject> cloudList = new List<GameObject>();
     private List<Vector3> path = new List<Vector3>();
     // Create a list to hold the results of each thread
     //private List<IAsyncResult> results = new List<IAsyncResult>();
     private List<bool> successList = new List<bool>();
 
 // Path connecting villages
-    public List<GameObject> InstantiatedPath = new List<GameObject>();
-    public List<List<GameObject>> InstantiatedListOfPaths = new List<List<GameObject>>();
+    public List<Vector3> InstantiatedPath = new List<Vector3>();
+    public List<List<Vector3>> InstantiatedListOfPaths = new List<List<Vector3>>();
+
+    public Dictionary<GameObject, List<GameObject>> villageDictionary = new Dictionary<GameObject, List<GameObject>>();
+
 
     // Occlusion Culling
 
@@ -139,12 +143,13 @@ public class SingleTerrainGen : MonoBehaviour
             chunk.isStatic = false;
             chunk.gameObject.tag = "Chunk";
 
+            #if UNITY_EDITOR
             StaticEditorFlags flags = GameObjectUtility.GetStaticEditorFlags(chunk);
             flags |= StaticEditorFlags.NavigationStatic;
             GameObjectUtility.SetStaticEditorFlags(chunk, flags);
             var flags2 = StaticEditorFlags.OffMeshLinkGeneration;
             GameObjectUtility.SetStaticEditorFlags(chunk, flags2);
-            
+            #endif
 
             chunk.AddComponent<NavMeshSurface>();
             NavMeshSurface navMeshSurface = chunk.GetComponent<NavMeshSurface>();
@@ -328,7 +333,7 @@ public class SingleTerrainGen : MonoBehaviour
             t.terrainData.SetDetailLayer(0, 0, 0, map);
             t.terrainData.SetDetailLayer(0, 0, 1, map2);
             t.treeDistance = 1000;
-            t.detailObjectDistance = 200;
+            t.detailObjectDistance = 500;
 
             OcclusionArea occlusionArea = chunk.AddComponent<OcclusionArea>();
             Vector3 terrainS = t.terrainData.bounds.size;
@@ -354,9 +359,10 @@ public class SingleTerrainGen : MonoBehaviour
         water.transform.position = new Vector3(1900, -50, 1500);
         Destroy(spawned);
 
+        #if UNITY_EDITOR
         Lightmapping.Bake();
         StaticOcclusionCulling.Compute();
-
+        #endif
         
         /// /////////////////////////////////////////////////////////////////////////////////////////
         /// center spawn 
@@ -442,7 +448,7 @@ public class SingleTerrainGen : MonoBehaviour
         }
 
         int r = Random.Range(0,agentList.Count);
-        spawnedPlayer.transform.position = new Vector3(agentList[r].transform.position.x + 50, agentList[r].transform.position.y + 50 , agentList[r].transform.position.z + 50);
+        spawnedPlayer.transform.position = new Vector3(agentList[r].transform.position.x + 50, agentList[r].transform.position.y + 100 , agentList[r].transform.position.z + 50);
 
     // //     // /////////////////////////////////////////////////////////////////////////////////////////
     // //     // // surrounding houses spawn
@@ -450,12 +456,20 @@ public class SingleTerrainGen : MonoBehaviour
         SpawnSurroundingObjects(100, 1, villageHouse);
 
         
+        iter = 1000;
+        for (int i = 0; i < 500; i++)
+        {
+            int random = Random.Range(0, 20);
+            GameObject chunkPos = GameObject.Find("Chunk" + random);
 
-        
-
-        
-        
-        
+            Vector3 position = new Vector3(
+                Random.Range(chunkPos.transform.position.x, chunkPos.transform.position.x + chunkSize.x),
+                2000,
+                Random.Range(chunkPos.transform.position.z, chunkPos.transform.position.z + chunkSize.z)
+            );
+            position.y = 2000f;
+            Instantiate(cloudList[Random.Range(0,cloudList.Count)], position, Quaternion.identity);
+        }
         
         
 
@@ -534,6 +548,14 @@ public class SingleTerrainGen : MonoBehaviour
             int iterations = 0;
             int count = UnityEngine.Random.Range(3, 7);
             List<Vector3> pathIteration = new List<Vector3>();
+            scList[j].gameObject.GetComponent<villagerSpawner>().villageNum = j;
+
+            GameObject wellObject = scList[j].gameObject;
+
+            if (!villageDictionary.ContainsKey(wellObject))
+            {
+                villageDictionary[wellObject] = new List<GameObject>();
+            }
 
             // Keep trying to spawn objects until the desired count is reached or the iteration limit is hit.
             while (spawned < count && iterations < 1000)
@@ -543,7 +565,6 @@ public class SingleTerrainGen : MonoBehaviour
                 // Generate a random position and find the corresponding terrain height.
                 Vector3 randomPos = GetRandomPosition(scList[j], radiusChange, minDistance);
                 float terrainHeight = GetTerrainHeight(randomPos);
-                print(terrainHeight + " --th");
 
                 // Check if the position is within the desired height range.
                 if (terrainHeight < maxHeight && terrainHeight > minHeight)
@@ -564,10 +585,11 @@ public class SingleTerrainGen : MonoBehaviour
 
                         spawnedObj.name = $"House {j}{spawned}";
                         AddHouseCollider(spawnedObj, 50f);
-
+                        scList[j].gameObject.GetComponent<villagerSpawner>().houseList.Add(spawnedObj);
                         // Record the spawned object's position and increment the spawn counter.
                         pathIteration.Add(instantiationPoint);
                         spawned++;
+                        villageDictionary[wellObject].Add(spawnedObj);
 
                         if (spawned == count)
                         {
@@ -748,6 +770,16 @@ private void AddHouseCollider(GameObject house, float radius)
     {
         LineRenderer lineRenderer;
         calcPath = new NavMeshPath();
+        InstantiatedPath.Clear();
+        NavMeshHit hit;
+        if (NavMesh.SamplePosition(startAgent.transform.position, out hit, 100.0f, NavMesh.AllAreas))
+        {
+            startAgent.transform.position = hit.position;
+        }
+        if (NavMesh.SamplePosition(end, out hit, 100.0f, NavMesh.AllAreas))
+        {
+            end = hit.position;
+        }
         startAgent.CalculatePath(end, calcPath);
         if (calcPath.status == NavMeshPathStatus.PathPartial)
         {
@@ -782,7 +814,6 @@ private void AddHouseCollider(GameObject house, float radius)
         }
 
 
-        //InstantiatedListOfPaths.Add(InstantiatedPath);
 
         // Create a new line renderer component
     
@@ -809,6 +840,7 @@ private void AddHouseCollider(GameObject house, float radius)
             // Check if the point is not beneath the terrain
             if (point.y >= minHeight)
             {
+                InstantiatedPath.Add(point);
                 lineRenderer.SetPosition(validPointCount, point);
                 validPointCount++;
 
@@ -819,6 +851,7 @@ private void AddHouseCollider(GameObject house, float radius)
             }
         }
     }
+    InstantiatedListOfPaths.Add(InstantiatedPath);
 
     // Set the number of positions in the line renderer to match the valid points count
     lineRenderer.positionCount = validPointCount;
