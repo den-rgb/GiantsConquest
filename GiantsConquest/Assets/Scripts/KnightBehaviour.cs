@@ -7,8 +7,8 @@ public class KnightBehaviour : MonoBehaviour
 {
     // Start is called before the first frame update
     GameObject knightspawner;
-    private List<List<GameObject>> pathList = new List<List<GameObject>>();
-    private List<GameObject> setPath = new List<GameObject>();
+    private List<List<Vector3>> pathList = new List<List<Vector3>>();
+    private List<Vector3> setPath = new List<Vector3>();
     
     private Animator anim;
     private NavMeshAgent agent;
@@ -21,7 +21,7 @@ public class KnightBehaviour : MonoBehaviour
     public int pathNum = 0;
     int count = 0;
     bool combat = false;
-    int i = 11;
+    int i;
     int sphereRadius = 50;
     float elapsedTime = 0;
 
@@ -41,17 +41,18 @@ public class KnightBehaviour : MonoBehaviour
             print(pathNum+" pathnum" + "--------" + pathList.Count);
             setPath = pathList[pathNum];
             print(setPath.Count+"---Count");
-            agent.SetDestination(setPath[i].transform.position);
+            i = pathList[pathNum].Count-1;
+            agent.SetDestination(setPath[i]);
             count++;
         }
 
         if (!combat)
         {
-            if (Vector3.Distance(transform.position, setPath[i].transform.position) < 7f && i < setPath.Count - 1)
+            if (Vector3.Distance(transform.position, setPath[i]) < 7f && i > 0)
             {
-                i++;
-                agent.SetDestination(setPath[i].transform.position);
-                agent.gameObject.transform.LookAt(setPath[i].transform.position);
+                i--;
+                agent.SetDestination(setPath[i]);
+                agent.gameObject.transform.LookAt(setPath[i]);
             }
         }
         else
@@ -81,7 +82,7 @@ public class KnightBehaviour : MonoBehaviour
                 if (anim.GetCurrentAnimatorStateInfo(0).IsName("Knight_step"))
                 {
                     // Move the gameobject perpendicular to the path
-                    Vector3 perpendicular = Vector3.Cross(Vector3.up, setPath[i].transform.position - transform.position).normalized;
+                    Vector3 perpendicular = Vector3.Cross(Vector3.up, setPath[i] - transform.position).normalized;
                     Vector3 targetPosition = transform.position + perpendicular * 3f;
                     while (elapsedTime < 0.5f)
                     {

@@ -1014,6 +1014,7 @@ GameObject:
   - component: {fileID: 18937601371673347}
   - component: {fileID: 8156339228206516712}
   - component: {fileID: 102447958017489457}
+  - component: {fileID: 8362074417682078913}
   m_Layer: 0
   m_Name: CenterWell
   m_TagString: Untagged
@@ -1067,10 +1068,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 668b028fd66e1cb3aa9ced7a0c87f492, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  villageNum: 0
   villagerPrefab_f: {fileID: 6489219955183993611, guid: ed491345fd369728d96dbb139a73fd96, type: 3}
   villagerPrefab_m: {fileID: 8615667726637325604, guid: d329b9f82b00c4b6bb112f58ee024797, type: 3}
+  houseList: []
   numberOfVillagers: 5
   spawnRadius: 100
+--- !u!114 &8362074417682078913
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 795051401022032313}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1892ca97ba24b0590a8068bf75dce4dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  destroyed: 0
 --- !u!1 &884285888393594508
 GameObject:
   m_ObjectHideFlags: 0
@@ -3508,11 +3524,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2555086870682914186}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7fd527023c93e434cae1c6904065f67e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  checkDestroyed: {fileID: 0}
+  isDestroyed: 0
 --- !u!65 &6427029268476819866
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -6348,11 +6366,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4325774421076513002}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7fd527023c93e434cae1c6904065f67e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  checkDestroyed: {fileID: 0}
+  isDestroyed: 0
 --- !u!65 &9046404834823579969
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -9798,11 +9818,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6905026868149389884}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7fd527023c93e434cae1c6904065f67e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  checkDestroyed: {fileID: 0}
+  isDestroyed: 0
 --- !u!65 &4842094042498165194
 BoxCollider:
   m_ObjectHideFlags: 0

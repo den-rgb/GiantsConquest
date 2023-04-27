@@ -11,21 +11,21 @@ public class KnightSpawner : MonoBehaviour
     private UnityEngine.AI.NavMeshAgent mapAgentPos;
     public GameObject knightPrefab;
 
-    // private Animator anim;
+    private Animator anim;
 
-    // public GameObject player;
+    public GameObject player;
 
-    //private List<GameObject> pathList = new List<GameObject>();
-    //public List<GameObject> knightList = new List<GameObject>();
+    private List<Vector3> pathList = new List<Vector3>();
+    public List<GameObject> knightList = new List<GameObject>();
     private int count = 0;
-    // bool combat ;
-    // int i = 11;
-    // int sphereRadius = 50;
-    // void Start()
-    // {
-    //     anim = GetComponent<Animator>();
-    //     combat = false;
-    // }
+    bool combat ;
+    int i = 11;
+    int sphereRadius = 50;
+    void Start()
+    {
+        anim = GetComponent<Animator>();
+        combat = false;
+    }
 
     // Update is called once per frame
     void Update()
@@ -41,43 +41,43 @@ public class KnightSpawner : MonoBehaviour
                     if(Physics.Raycast(mapAgentPos.transform.position, Vector3.down, out hit)){
                         knight = Instantiate(knightPrefab, mapAgentPos.transform.position, Quaternion.identity);
                         knight.GetComponent<KnightBehaviour>().pathNum = i;
-                        //knightList.Add(knight);
+                        knightList.Add(knight);
                     }
                 }
                 
                 
-                //     agent.SetDestination(pathList[11].transform.position);
-                // }
-                // print(pathList.Count);
-                count++;
+                   // agent.SetDestination(pathList[11]);
+                    count++;
+                }
+    }
                 
-            }
+                
+                
+
 
             //print(Vector3.Distance(knight.transform.position, pathList[i].transform.position));
-            // if (Vector3.Distance(knight.transform.position, pathList[i].transform.position) < 20f && i < pathList.Count - 1)
-            // {
-            //     i++;
-            //     // print(i);
-            //     agent.SetDestination(pathList[i].transform.position);
-            //     agent.gameObject.transform.LookAt(pathList[i].transform.position);
-            // }
-        // }else{
-        //     agent.SetDestination(player.transform.position);
+    //         if (Vector3.Distance(knight.transform.position, pathList[i]) < 20f && i < pathList.Count - 1)
+    //         {
+    //             i++;
+    //             // print(i);
+    //             agent.SetDestination(pathList[i]);
+    //             print(agent.remainingDistance);
+    //             agent.gameObject.transform.LookAt(pathList[i]);
+    //         }
+    //     else{
+    //         agent.SetDestination(player.transform.position);
 
-        //     if(agent.remainingDistance < 5f){
-        //         agent.isStopped = true;
-        //         anim.SetBool("Attack",true);
-        //         float rnd = Random.Range(0, 15);
-        //         anim.SetFloat("step", rnd);
-        //     }else{
-        //         anim.SetBool("Attack",false);
-        //         agent.isStopped = false;
-        //     }
-
-        
-
-
-    }
+    //         if(agent.remainingDistance < 5f){
+    //             agent.isStopped = true;
+    //             anim.SetBool("Attack",true);
+    //             float rnd = Random.Range(0, 15);
+    //             anim.SetFloat("step", rnd);
+    //         }else{
+    //             anim.SetBool("Attack",false);
+    //             agent.isStopped = false;
+    //         }
+    //         }
+    // }
 
 
     // void playerFound(){

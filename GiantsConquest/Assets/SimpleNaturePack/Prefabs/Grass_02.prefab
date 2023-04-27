@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 3356751432537613521}
   - component: {fileID: 3356751432534746353}
   - component: {fileID: 3356751432535844401}
+  - component: {fileID: -3898632777083138490}
   - component: {fileID: 3179745384788728865}
   m_Layer: 6
   m_Name: Grass_02
@@ -84,6 +85,22 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &-3898632777083138490
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3356751432538110193}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2be6543d0bf34d45ca3d67d1070ae3b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerCamera: {fileID: 0}
+  objectRenderer: {fileID: 0}
+  lod0Distance: 10
+  lod1Distance: 50
 --- !u!64 &3179745384788728865
 MeshCollider:
   m_ObjectHideFlags: 0

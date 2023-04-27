@@ -9633,6 +9633,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7fd527023c93e434cae1c6904065f67e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  checkDestroyed: {fileID: 8716117108921253225}
+  isDestroyed: 0
 --- !u!65 &5751846254607157304
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -14760,6 +14762,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7fd527023c93e434cae1c6904065f67e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  checkDestroyed: {fileID: 8716117108921253225}
+  isDestroyed: 0
 --- !u!65 &8116031947059882220
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -20759,6 +20763,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5384943003590344121}
   - component: {fileID: 6053006388392486046}
+  - component: {fileID: 8716117108921253225}
   m_Layer: 0
   m_Name: Village_House
   m_TagString: Untagged
@@ -20822,6 +20827,19 @@ NavMeshObstacle:
   m_CarveOnlyStationary: 1
   m_Center: {x: -3.5, y: 7, z: -6.5}
   m_TimeToStationary: 0
+--- !u!114 &8716117108921253225
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5384943003590344120}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1892ca97ba24b0590a8068bf75dce4dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  destroyed: 0
 --- !u!1 &5384943003606499886
 GameObject:
   m_ObjectHideFlags: 0
@@ -53495,6 +53513,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7fd527023c93e434cae1c6904065f67e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  checkDestroyed: {fileID: 8716117108921253225}
+  isDestroyed: 0
 --- !u!65 &5568373502371038355
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -59197,6 +59217,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7fd527023c93e434cae1c6904065f67e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  checkDestroyed: {fileID: 8716117108921253225}
+  isDestroyed: 0
 --- !u!65 &4635349384391245726
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -79741,6 +79763,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7fd527023c93e434cae1c6904065f67e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  checkDestroyed: {fileID: 8716117108921253225}
+  isDestroyed: 0
 --- !u!65 &1670407692064535071
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -100219,6 +100243,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7fd527023c93e434cae1c6904065f67e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  checkDestroyed: {fileID: 8716117108921253225}
+  isDestroyed: 0
 --- !u!65 &958585917885666165
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -113176,6 +113202,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7fd527023c93e434cae1c6904065f67e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  checkDestroyed: {fileID: 8716117108921253225}
+  isDestroyed: 0
 --- !u!65 &9014129306822931515
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -115571,6 +115599,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7fd527023c93e434cae1c6904065f67e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  checkDestroyed: {fileID: 8716117108921253225}
+  isDestroyed: 0
 --- !u!65 &5859722815059874614
 BoxCollider:
   m_ObjectHideFlags: 0
